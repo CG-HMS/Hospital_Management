@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/API/">
+    <Project Path="API/Hms.API/Hms.API.csproj" />
+  </Folder>
+  <Folder Name="/MVC/">
+    <Project Path="MVC/Hms.MVC/Hms.MVC.csproj" />
+  </Folder>
+</Solution>
