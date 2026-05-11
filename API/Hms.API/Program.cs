@@ -1,9 +1,12 @@
 
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Hms.API.Data;
 using Hms.API.Mapping;
 using Hms.API.Middleware;
 using Hms.API.Repository;
 using Hms.API.Services;
+using Hms.API.Validator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
@@ -31,6 +34,12 @@ namespace Hms.API
 
             builder.Services.AddScoped<IProcedureService, ProcedureService>();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
+            builder.Services
+    .AddFluentValidationAutoValidation();
+
+            builder.Services
+                .AddValidatorsFromAssemblyContaining<
+                    CreatePhysicianDtoValidator>();
 
             var app = builder.Build();
 

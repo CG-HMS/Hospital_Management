@@ -21,7 +21,15 @@ namespace Hms.API.Services
         }
         public async Task<PhysicianDto> AddPhysician(CreatePhysicianDto dto)
         {
+            var physicians = await _repository.GetAll();
+
+            int nextId = physicians.Any()
+                ? physicians.Max(p => p.EmployeeId) + 1
+                : 1;
+
             var physician = _mapper.Map<Physician>(dto);
+
+            physician.EmployeeId = nextId;
 
             await _repository.Add(physician);
 
@@ -39,6 +47,14 @@ namespace Hms.API.Services
                 await _repository.DepartmentExists(dto.DepartmentId);
 
             if (!physicianExists || !departmentExists)
+            {
+                return false;
+            }
+            var alreadyExists = await _repository.AffiliationExists(
+            physicianId,
+            dto.DepartmentId);
+
+            if (alreadyExists)
             {
                 return false;
             }
@@ -119,8 +135,22 @@ namespace Hms.API.Services
             {
                 return null;
             }
+            if (dto.Name != null)
+            {
+                physician.Name = dto.Name;
+            }
 
-            _mapper.Map(dto, physician);
+            if (dto.Position != null)
+            {
+                physician.Position = dto.Position;
+            }
+
+            if (dto.Ssn.HasValue)
+            {
+                physician.Ssn = dto.Ssn.Value;
+            }
+
+            //_mapper.Map(dto, physician);
 
             await _repository.Save();
 

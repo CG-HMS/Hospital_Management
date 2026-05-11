@@ -25,8 +25,7 @@ namespace Hms.API.Controllers
         [HttpGet("{code}")]
         public async Task<IActionResult> GetProcedure(int code)
         {
-            var procedure =
-                await _service.GetProcedureByCode(code);
+            var procedure = await _service.GetProcedureByCode(code);
 
             if (procedure == null)
             {
@@ -37,27 +36,22 @@ namespace Hms.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddProcedure(
-            CreateProcedureDto dto)
+        public async Task<IActionResult> AddProcedure(CreateProcedureDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var procedure =
-                await _service.AddProcedure(dto);
+            var procedure = await _service.AddProcedure(dto);
 
             return Ok(procedure);
         }
 
         [HttpPut("{code}")]
-        public async Task<IActionResult> UpdateProcedure(
-            int code,
-            UpdateProcedureDto dto)
+        public async Task<IActionResult> UpdateProcedure(int code, UpdateProcedureDto dto)
         {
-            var procedure =
-                await _service.UpdateProcedure(code, dto);
+            var procedure = await _service.UpdateProcedure(code, dto);
 
             if (procedure == null)
             {
@@ -68,11 +62,9 @@ namespace Hms.API.Controllers
         }
 
         [HttpDelete("{code}")]
-        public async Task<IActionResult> DeleteProcedure(
-            int code)
+        public async Task<IActionResult> DeleteProcedure(int code)
         {
-            var deleted =
-                await _service.DeleteProcedure(code);
+            var deleted = await _service.DeleteProcedure(code);
 
             if (!deleted)
             {
@@ -82,13 +74,37 @@ namespace Hms.API.Controllers
             return Ok("Procedure deleted successfully");
         }
         [HttpGet("{code}/physicians")]
-        public async Task<IActionResult>
-    GetPhysiciansByProcedure(int code)
+        public async Task<IActionResult> GetPhysiciansByProcedure(int code)
         {
-            var physicians =
-                await _service.GetPhysiciansByProcedure(code);
+            var physicians = await _service.GetPhysiciansByProcedure(code);
 
             return Ok(physicians);
+        }
+        [HttpGet("{code}/stays")]
+        public async Task<IActionResult> GetStaysByProcedure(int code)
+        {
+            var stays = await _service.GetStaysByProcedure(code);
+
+            return Ok(stays);
+        }
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchProcedures([FromQuery] string name)
+        {
+            var procedures = await _service.SearchProcedures(name);
+
+            return Ok(procedures);
+        }
+        [HttpGet("cost-range")]
+        public async Task<IActionResult> GetProceduresByCostRange([FromQuery] float min,[FromQuery] float max)
+        {
+            if (min > max)
+            {
+                return BadRequest("Min cost cannot be greater than max cost");
+            }
+
+            var procedures = await _service.GetProceduresByCostRange(min,max);
+
+            return Ok(procedures);
         }
     }
 }

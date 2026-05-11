@@ -53,9 +53,51 @@ namespace Hms.API.Repository
          }).ToListAsync();
         }
 
+        public async Task<IEnumerable<Procedure>> GetProceduresByCostRange(float min, float max)
+        {
+            return await _context.Procedures
+
+        .Where(p => p.Cost >= min &&
+                    p.Cost <= max)
+
+        .ToListAsync();
+        }
+
+        public async Task<IEnumerable<StayDto>> GetStaysByProcedure(int code)
+        {
+            return await
+        (from u in _context.Undergoes
+
+         join s in _context.Stays
+            on u.Stay equals s.StayId
+
+         join p in _context.Patients
+            on s.Patient equals p.Ssn
+
+         where u.Procedures == code
+
+         select new StayDto
+         {
+             StayId = s.StayId,
+             PatientName = p.Name,
+             RoomNumber = s.Room,
+             StartDate = s.StayStart,
+             EndDate = s.StayEnd
+         }).ToListAsync();
+        }
+
         public async Task Save()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Procedure>> SearchProcedures(string name)
+        {
+            return await _context.Procedures
+
+        .Where(p => p.Name.Contains(name))
+
+        .ToListAsync();
         }
     }
 }

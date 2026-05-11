@@ -20,7 +20,17 @@ namespace Hms.API.Services
 
         public async Task<ProcedureDto> AddProcedure(CreateProcedureDto dto)
         {
-            var procedure = _mapper.Map<Procedure>(dto);
+            var procedures =
+        await _repository.GetAll();
+
+            int nextCode = procedures.Any()
+                ? procedures.Max(p => p.Code) + 1
+                : 1;
+
+            var procedure =
+                _mapper.Map<Procedure>(dto);
+
+            procedure.Code = nextCode;
 
             await _repository.Add(procedure);
 
@@ -68,6 +78,25 @@ namespace Hms.API.Services
             }
 
             return _mapper.Map<ProcedureDto>(procedure);
+        }
+
+        public async Task<IEnumerable<ProcedureDto>> GetProceduresByCostRange(float min, float max)
+        {
+            var procedures = await _repository.GetProceduresByCostRange(min, max);
+
+            return _mapper.Map<IEnumerable<ProcedureDto>>(procedures);
+        }
+
+        public async Task<IEnumerable<StayDto>> GetStaysByProcedure(int code)
+        {
+            return await _repository.GetStaysByProcedure(code);
+        }
+
+        public async Task<IEnumerable<ProcedureDto>> SearchProcedures(string name)
+        {
+            var procedures = await _repository.SearchProcedures(name);
+
+            return _mapper.Map<IEnumerable<ProcedureDto>>(procedures);
         }
 
         public async Task<ProcedureDto?> UpdateProcedure(int code, UpdateProcedureDto dto)

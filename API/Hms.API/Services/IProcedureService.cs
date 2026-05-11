@@ -16,5 +16,11 @@ namespace Hms.API.Services
         Task<bool> DeleteProcedure(int code);
         Task<IEnumerable<ProcedurePhysicianDto>>
             GetPhysiciansByProcedure(int code);
+        Task<IEnumerable<StayDto>> GetStaysByProcedure(int code);
+        Task<IEnumerable<ProcedureDto>> SearchProcedures(string name);
+        Task<IEnumerable<ProcedureDto>> GetProceduresByCostRange(
+        float min,
+        float max);
     }
+
 }

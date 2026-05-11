@@ -28,5 +28,9 @@ namespace Hms.API.Repository
         Task<bool> DepartmentExists(int departmentId);
 
         Task AssignDepartment(AffiliatedWith affiliatedWith);
+
+        Task<bool> AffiliationExists(
+    int physicianId,
+    int departmentId);
     }
 }

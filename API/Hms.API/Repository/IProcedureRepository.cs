@@ -14,5 +14,11 @@ namespace Hms.API.Repository
         Task Save();
 
         Task<IEnumerable<ProcedurePhysicianDto>> GetPhysiciansByProcedure(int code);
+        Task<IEnumerable<StayDto>> GetStaysByProcedure(int code);
+        Task<IEnumerable<Procedure>> SearchProcedures(string name);
+
+        Task<IEnumerable<Procedure>> GetProceduresByCostRange(
+        float min,
+        float max);
     }
 }

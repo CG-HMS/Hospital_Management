@@ -116,5 +116,13 @@ namespace Hms.API.Repository
             return await _context.Physicians
                 .AnyAsync(p => p.EmployeeId == physicianId);
         }
+
+        public async Task<bool> AffiliationExists(int physicianId, int departmentId)
+        {
+            return await _context.AffiliatedWiths
+        .AnyAsync(a =>
+            a.Physician == physicianId &&
+            a.Department == departmentId);
+        }
     }
 }
