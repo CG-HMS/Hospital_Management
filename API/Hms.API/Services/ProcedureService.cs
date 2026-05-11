@@ -1,5 +1,6 @@
-﻿using AutoMapper;
+﻿using System.Linq;
 using Hms.API.DTOs;
+using Hms.API.Exceptions;
 using Hms.API.Models;
 using Hms.API.Repository;
 
@@ -8,35 +9,31 @@ namespace Hms.API.Services
     public class ProcedureService : IProcedureService
     {
         private readonly IProcedureRepository _repository;
-        private readonly IMapper _mapper;
 
-        public ProcedureService(
-            IProcedureRepository repository,
-            IMapper mapper)
+        public ProcedureService(IProcedureRepository repository)
         {
             _repository = repository;
-            _mapper = mapper;
         }
 
         public async Task<ProcedureDto> AddProcedure(CreateProcedureDto dto)
         {
-            var procedures =
-        await _repository.GetAll();
+            var procedures = await _repository.GetAll();
 
             int nextCode = procedures.Any()
                 ? procedures.Max(p => p.Code) + 1
                 : 1;
 
-            var procedure =
-                _mapper.Map<Procedure>(dto);
-
-            procedure.Code = nextCode;
+            var procedure = new Procedure
+            {
+                Name = dto.Name,
+                Cost = dto.Cost,
+                Code = nextCode
+            };
 
             await _repository.Add(procedure);
-
             await _repository.Save();
 
-            return _mapper.Map<ProcedureDto>(procedure);
+            return MapToDto(procedure);
         }
 
         public async Task<bool> DeleteProcedure(int code)
@@ -45,11 +42,10 @@ namespace Hms.API.Services
 
             if (procedure == null)
             {
-                return false;
+                throw new NotFoundException("Procedure not found");
             }
 
             _repository.Delete(procedure);
-
             await _repository.Save();
 
             return true;
@@ -58,14 +54,12 @@ namespace Hms.API.Services
         public async Task<IEnumerable<ProcedureDto>> GetAllProcedures()
         {
             var procedures = await _repository.GetAll();
-
-            return _mapper.Map<IEnumerable<ProcedureDto>>(procedures);
+            return procedures.Select(MapToDto);
         }
 
         public async Task<IEnumerable<ProcedurePhysicianDto>> GetPhysiciansByProcedure(int code)
         {
-            return await _repository
-        .GetPhysiciansByProcedure(code);
+            return await _repository.GetPhysiciansByProcedure(code);
         }
 
         public async Task<ProcedureDto?> GetProcedureByCode(int code)
@@ -74,17 +68,16 @@ namespace Hms.API.Services
 
             if (procedure == null)
             {
-                return null;
+                throw new NotFoundException("Procedure not found");
             }
 
-            return _mapper.Map<ProcedureDto>(procedure);
+            return MapToDto(procedure);
         }
 
         public async Task<IEnumerable<ProcedureDto>> GetProceduresByCostRange(float min, float max)
         {
             var procedures = await _repository.GetProceduresByCostRange(min, max);
-
-            return _mapper.Map<IEnumerable<ProcedureDto>>(procedures);
+            return procedures.Select(MapToDto);
         }
 
         public async Task<IEnumerable<StayDto>> GetStaysByProcedure(int code)
@@ -95,8 +88,7 @@ namespace Hms.API.Services
         public async Task<IEnumerable<ProcedureDto>> SearchProcedures(string name)
         {
             var procedures = await _repository.SearchProcedures(name);
-
-            return _mapper.Map<IEnumerable<ProcedureDto>>(procedures);
+            return procedures.Select(MapToDto);
         }
 
         public async Task<ProcedureDto?> UpdateProcedure(int code, UpdateProcedureDto dto)
@@ -105,14 +97,33 @@ namespace Hms.API.Services
 
             if (procedure == null)
             {
-                return null;
+                throw new NotFoundException("Procedure not found");
             }
 
-            _mapper.Map(dto, procedure);
+            if (dto.Name != null)
+            {
+                procedure.Name = dto.Name;
+            }
+
+            if (dto.Cost.HasValue)
+            {
+                procedure.Cost = dto.Cost.Value;
+            }
 
             await _repository.Save();
 
-            return _mapper.Map<ProcedureDto>(procedure);
+            return MapToDto(procedure);
+        }
+
+        // Manual mapping helper
+        private static ProcedureDto MapToDto(Procedure p)
+        {
+            return new ProcedureDto
+            {
+                Code = p.Code,
+                Name = p.Name,
+                Cost = (decimal)p.Cost
+            };
         }
     }
 }

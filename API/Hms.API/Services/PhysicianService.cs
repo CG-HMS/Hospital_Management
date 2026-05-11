@@ -1,24 +1,22 @@
-﻿using Hms.API.Data;
+﻿using System.Linq;
+using Hms.API.Data;
 using Hms.API.DTOs;
 using Hms.API.Models;
 using Hms.API.Repository;
+using Hms.API.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
 
 namespace Hms.API.Services
 {
     public class PhysicianService : IPhysicianService
     {
         private readonly IPhysicianRepository _repository;
-        private readonly IMapper _mapper;
 
-        public PhysicianService(
-            IPhysicianRepository repository,
-            IMapper mapper)
+        public PhysicianService(IPhysicianRepository repository)
         {
             _repository = repository;
-            _mapper = mapper;
         }
+
         public async Task<PhysicianDto> AddPhysician(CreatePhysicianDto dto)
         {
             var physicians = await _repository.GetAll();
@@ -27,36 +25,35 @@ namespace Hms.API.Services
                 ? physicians.Max(p => p.EmployeeId) + 1
                 : 1;
 
-            var physician = _mapper.Map<Physician>(dto);
-
-            physician.EmployeeId = nextId;
+            var physician = new Physician
+            {
+                Name = dto.Name,
+                Position = dto.Position,
+                Ssn = dto.Ssn,
+                EmployeeId = nextId
+            };
 
             await _repository.Add(physician);
-
             await _repository.Save();
 
-            return _mapper.Map<PhysicianDto>(physician);
+            return MapToDto(physician);
         }
 
         public async Task<bool> AssignDepartment(int physicianId, AssignDepartmentDto dto)
         {
-            var physicianExists =
-                await _repository.PhysicianExists(physicianId);
-
-            var departmentExists =
-                await _repository.DepartmentExists(dto.DepartmentId);
+            var physicianExists = await _repository.PhysicianExists(physicianId);
+            var departmentExists = await _repository.DepartmentExists(dto.DepartmentId);
 
             if (!physicianExists || !departmentExists)
             {
-                return false;
+                throw new BadRequestException("Invalid physician or department");
             }
-            var alreadyExists = await _repository.AffiliationExists(
-            physicianId,
-            dto.DepartmentId);
+
+            var alreadyExists = await _repository.AffiliationExists(physicianId, dto.DepartmentId);
 
             if (alreadyExists)
             {
-                return false;
+                throw new ConflictException("Physician already affiliated with department");
             }
 
             var affiliation = new AffiliatedWith
@@ -66,7 +63,6 @@ namespace Hms.API.Services
             };
 
             await _repository.AssignDepartment(affiliation);
-
             await _repository.Save();
 
             return true;
@@ -78,11 +74,10 @@ namespace Hms.API.Services
 
             if (physician == null)
             {
-                return false;
+                throw new NotFoundException("Physician not found");
             }
 
             _repository.Delete(physician);
-
             await _repository.Save();
 
             return true;
@@ -91,8 +86,7 @@ namespace Hms.API.Services
         public async Task<IEnumerable<PhysicianDto>> GetAllPhysicians()
         {
             var physicians = await _repository.GetAll();
-
-            return _mapper.Map<IEnumerable<PhysicianDto>>(physicians);
+            return physicians.Select(MapToDto);
         }
 
         public async Task<IEnumerable<AppointmentDto>> GetAppointmentsByPhysician(int physicianId)
@@ -116,10 +110,10 @@ namespace Hms.API.Services
 
             if (physician == null)
             {
-                return null;
+                throw new NotFoundException("Physician not found");
             }
 
-            return _mapper.Map<PhysicianDto>(physician);
+            return MapToDto(physician);
         }
 
         public async Task<IEnumerable<ProcedureDto>> GetProceduresByPhysician(int physicianId)
@@ -133,8 +127,9 @@ namespace Hms.API.Services
 
             if (physician == null)
             {
-                return null;
+                throw new NotFoundException("Physician not found");
             }
+
             if (dto.Name != null)
             {
                 physician.Name = dto.Name;
@@ -150,11 +145,21 @@ namespace Hms.API.Services
                 physician.Ssn = dto.Ssn.Value;
             }
 
-            //_mapper.Map(dto, physician);
-
             await _repository.Save();
 
-            return _mapper.Map<PhysicianDto>(physician);
+            return MapToDto(physician);
+        }
+
+        // Manual mapping helpers
+        private static PhysicianDto MapToDto(Physician p)
+        {
+            return new PhysicianDto
+            {
+                EmployeeId = p.EmployeeId,
+                Name = p.Name,
+                Position = p.Position,
+                Department = p.Departments?.FirstOrDefault()?.Name ?? string.Empty
+            };
         }
     }
 }

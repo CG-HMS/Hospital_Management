@@ -22,15 +22,11 @@ namespace Hms.API.Controllers
 
             return Ok(procedures);
         }
+
         [HttpGet("{code}")]
         public async Task<IActionResult> GetProcedure(int code)
         {
             var procedure = await _service.GetProcedureByCode(code);
-
-            if (procedure == null)
-            {
-                return NotFound();
-            }
 
             return Ok(procedure);
         }
@@ -38,11 +34,6 @@ namespace Hms.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddProcedure(CreateProcedureDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var procedure = await _service.AddProcedure(dto);
 
             return Ok(procedure);
@@ -53,11 +44,6 @@ namespace Hms.API.Controllers
         {
             var procedure = await _service.UpdateProcedure(code, dto);
 
-            if (procedure == null)
-            {
-                return NotFound();
-            }
-
             return Ok(procedure);
         }
 
@@ -65,11 +51,6 @@ namespace Hms.API.Controllers
         public async Task<IActionResult> DeleteProcedure(int code)
         {
             var deleted = await _service.DeleteProcedure(code);
-
-            if (!deleted)
-            {
-                return NotFound();
-            }
 
             return Ok("Procedure deleted successfully");
         }
@@ -80,6 +61,7 @@ namespace Hms.API.Controllers
 
             return Ok(physicians);
         }
+
         [HttpGet("{code}/stays")]
         public async Task<IActionResult> GetStaysByProcedure(int code)
         {
@@ -87,6 +69,7 @@ namespace Hms.API.Controllers
 
             return Ok(stays);
         }
+
         [HttpGet("search")]
         public async Task<IActionResult> SearchProcedures([FromQuery] string name)
         {
@@ -94,14 +77,10 @@ namespace Hms.API.Controllers
 
             return Ok(procedures);
         }
+
         [HttpGet("cost-range")]
         public async Task<IActionResult> GetProceduresByCostRange([FromQuery] float min,[FromQuery] float max)
         {
-            if (min > max)
-            {
-                return BadRequest("Min cost cannot be greater than max cost");
-            }
-
             var procedures = await _service.GetProceduresByCostRange(min,max);
 
             return Ok(procedures);

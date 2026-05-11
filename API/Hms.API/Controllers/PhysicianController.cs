@@ -27,10 +27,7 @@ namespace Hms.API.Controllers
         public async Task<IActionResult> GetPhysicianById(int id)
         {
             var physician = await _service.GetPhysicianById(id);
-            if (physician == null)
-            {
-                return NotFound("Physician not found");
-            }
+            
             return Ok(physician);
         }
 
@@ -46,20 +43,14 @@ namespace Hms.API.Controllers
         public async Task<IActionResult> UpdatePhysician(int id, UpdatePhysicianDto dto)
         {
             var physician = await _service.UpdatePhysician(id, dto);
-            if (physician == null)
-            {
-                return NotFound("Physician not found");
-            }
+            
             return Ok(physician);
         }
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePhysician(int id)
         {
             var deleted = await _service.DeletePhysician(id);
-            if (!deleted)
-            {
-                return NotFound("Physician not found");
-            }
+            
             return Ok("Physician deleted successfully");
         }
 
@@ -78,20 +69,15 @@ namespace Hms.API.Controllers
 
             return Ok(procedures);
         }
+
         [HttpPost("{id}/departments")]
-        public async Task<IActionResult> AssignDepartment(
-    int id,
-    AssignDepartmentDto dto)
+        public async Task<IActionResult> AssignDepartment(int id, AssignDepartmentDto dto)
         {
             var assigned = await _service.AssignDepartment(id, dto);
 
-            if (!assigned)
-            {
-                return BadRequest("Invalid physician or department");
-            }
-
             return Ok("Department assigned successfully");
         }
+        
         [HttpGet("{id}/appointments")]
         public async Task<IActionResult> GetAppointments(int id)
         {
@@ -99,6 +85,7 @@ namespace Hms.API.Controllers
 
             return Ok(appointments);
         }
+
         [HttpGet("{id}/patients")]
         public async Task<IActionResult> GetPatients(int id)
         {
