@@ -22,16 +22,11 @@ public class MedicationController : ControllerBase
 
         return Ok(medications);
     }
+
     [HttpGet("{code}")]
     public async Task<IActionResult> GetMedicationById(int code)
     {
         var medication = await _service.GetMedicationByIdAsync(code);
-
-        if (medication == null)
-            return NotFound(new
-            {
-                Message = "Medication not found"
-            });
 
         return Ok(medication);
     }
@@ -47,16 +42,14 @@ public class MedicationController : ControllerBase
             medication
         );
     }
-    [HttpPut("{code}")]
-    public async Task<IActionResult> UpdateMedication(int code, MedicationRequestDto dto)
-    {
-        var updated = await _service.UpdateMedicationAsync(code, dto);
 
-        if (!updated)
-            return NotFound(new
-            {
-                Message = "Medication not found"
-            });
+    [HttpPut("{code}")]
+    public async Task<IActionResult> UpdateMedication(
+        int code,
+        MedicationRequestDto dto
+    )
+    {
+        await _service.UpdateMedicationAsync(code, dto);
 
         return Ok(new
         {
@@ -67,14 +60,9 @@ public class MedicationController : ControllerBase
     [HttpDelete("{code}")]
     public async Task<IActionResult> DeleteMedication(int code)
     {
-        var deleted = await _service.DeleteMedicationAsync(code);
+        await _service.DeleteMedicationAsync(code);
 
-        if (!deleted)
-            return NotFound(new
-            {
-                Message = "Medication not found"
-            });
-            return Ok(new
+        return Ok(new
         {
             Message = "Medication deleted successfully"
         });

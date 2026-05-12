@@ -6,11 +6,11 @@ public interface IMedicationService
 {
     Task<IEnumerable<MedicationResponseDto>> GetAllMedicationsAsync();
 
-    Task<MedicationResponseDto?> GetMedicationByIdAsync(int code);
+    Task<MedicationResponseDto> GetMedicationByIdAsync(int code);
 
     Task<MedicationResponseDto> CreateMedicationAsync(MedicationRequestDto dto);
 
-    Task<bool> UpdateMedicationAsync(int code, MedicationRequestDto dto);
+    Task UpdateMedicationAsync(int code, MedicationRequestDto dto);
 
-    Task<bool> DeleteMedicationAsync(int code);
+    Task DeleteMedicationAsync(int code);
 }

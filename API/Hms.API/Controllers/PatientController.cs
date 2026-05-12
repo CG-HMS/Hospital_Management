@@ -28,12 +28,6 @@ public class PatientController : ControllerBase
     {
         var patient = await _service.GetPatientByIdAsync(ssn);
 
-        if (patient == null)
-            return NotFound(new
-            {
-                Message = "Patient not found"
-            });
-
         return Ok(patient);
     }
 
@@ -48,16 +42,11 @@ public class PatientController : ControllerBase
             patient
         );
     }
+
     [HttpPut("{ssn}")]
     public async Task<IActionResult> UpdatePatient(int ssn, PatientRequestDto dto)
     {
-        var updated = await _service.UpdatePatientAsync(ssn, dto);
-
-        if (!updated)
-            return NotFound(new
-            {
-                Message = "Patient not found"
-            });
+        await _service.UpdatePatientAsync(ssn, dto);
 
         return Ok(new
         {
@@ -68,14 +57,9 @@ public class PatientController : ControllerBase
     [HttpDelete("{ssn}")]
     public async Task<IActionResult> DeletePatient(int ssn)
     {
-        var deleted = await _service.DeletePatientAsync(ssn);
+        await _service.DeletePatientAsync(ssn);
 
-        if (!deleted)
-            return NotFound(new
-            {
-                Message = "Patient not found"
-            });
-             return Ok(new
+        return Ok(new
         {
             Message = "Patient deleted successfully"
         });

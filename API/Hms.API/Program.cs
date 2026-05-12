@@ -17,7 +17,7 @@ using Hms.API.Services.Interfaces;
 using Hms.API.Validator;
 
 using Microsoft.EntityFrameworkCore;
-
+using Hms.API.Middleware;
 namespace Hms.API
 {
     public class Program
@@ -26,41 +26,35 @@ namespace Hms.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Controllers
             builder.Services.AddControllers();
 
-            // Swagger
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // Database
             builder.Services.AddDbContext<MyAppDbContext>(options =>
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection")
                 )
             );
 
-            // Repository Registration
             builder.Services.AddScoped<IPatientRepository, PatientRepository>();
             builder.Services.AddScoped<IMedicationRepository, MedicationRepository>();
 
-            // Service Registration
             builder.Services.AddScoped<IPatientService, PatientService>();
             builder.Services.AddScoped<IMedicationService, MedicationService>();
 
-            // Fluent Validation
             builder.Services.AddFluentValidationAutoValidation();
 
             builder.Services.AddScoped<IValidator<PatientRequestDto>, PatientValidator>();
 
             builder.Services.AddScoped<IValidator<MedicationRequestDto>, MedicationValidator>();
 
-            // AutoMapper
+            
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             var app = builder.Build();
 
-            // Middleware
+            
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -68,7 +62,7 @@ namespace Hms.API
             }
 
             app.UseHttpsRedirection();
-
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseAuthorization();
 
             app.MapControllers();
