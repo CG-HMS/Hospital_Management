@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Hms.API.DTOs;
+﻿using Hms.API.DTOs;
 using Hms.API.Exceptions;
 using Hms.API.Models;
 using Hms.API.Repository;
@@ -14,15 +13,14 @@ namespace Hms.API.Services
     {
         private readonly IAuthRepository _repo;
         private readonly IConfiguration _config;
-        private readonly IMapper _mapper;
 
+        // IMapper removed — manual mapping is used throughout (no redundant AutoMapper overhead)
         private static readonly string[] AllowedRoles = ["admin", "physician", "nurse", "patient"];
 
-        public AuthService(IAuthRepository repo, IConfiguration config, IMapper mapper)
+        public AuthService(IAuthRepository repo, IConfiguration config)
         {
             _repo = repo;
             _config = config;
-            _mapper = mapper;
         }
 
         // ── Login ──────────────────────────────────────────────────────────────
@@ -32,28 +30,28 @@ namespace Hms.API.Services
                 ?? throw new UnauthorizedException("Invalid email or password.");
 
             if (!user.IsActive)
-                throw new ForbiddenException("Your account has been deactivated. Please contact admin.");
+                throw new ForbiddenException("Your account has been deactivated. Contact admin.");
 
             if (string.IsNullOrWhiteSpace(dto.Password) || string.IsNullOrWhiteSpace(user.PasswordHash))
                 throw new UnauthorizedException("Invalid email or password.");
 
-            var hashedPassword = PasswordHasher.ComputeSha256(dto.Password);
-            if (!string.Equals(hashedPassword, user.PasswordHash, StringComparison.Ordinal))
+            var hashed = PasswordHasher.ComputeSha256(dto.Password);
+            if (!string.Equals(hashed, user.PasswordHash, StringComparison.Ordinal))
                 throw new UnauthorizedException("Invalid email or password.");
 
-            return GenerateTokenResponse(user);
+            return BuildTokenResponse(user);
         }
 
         // ── Get All Users ──────────────────────────────────────────────────────
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
-            => _mapper.Map<IEnumerable<UserDto>>(await _repo.GetAllAsync());
+            => (await _repo.GetAllAsync()).Select(ToDto);
 
         // ── Get User By Id ─────────────────────────────────────────────────────
         public async Task<UserDto> GetUserByIdAsync(int userId)
         {
             var user = await _repo.GetByIdAsync(userId)
                 ?? throw new NotFoundException("User", userId);
-            return _mapper.Map<UserDto>(user);
+            return ToDto(user);
         }
 
         // ── Create User ────────────────────────────────────────────────────────
@@ -65,15 +63,19 @@ namespace Hms.API.Services
             if (await _repo.UsernameExistsAsync(dto.Username))
                 throw new ConflictException($"Username '{dto.Username}' is already taken.");
 
-            var user = _mapper.Map<User>(dto);
-            user.Username     = dto.Username.ToLower().Trim();
-            user.Email        = dto.Email.ToLower().Trim();
-            user.Role         = dto.Role.ToLower();
-            user.PasswordHash = PasswordHasher.ComputeSha256(dto.Password);
-            user.IsActive     = true;
-            user.CreatedAt    = DateTime.UtcNow;
+            // Manual mapping — no AutoMapper needed for a straightforward 6-field object
+            var user = new User
+            {
+                Username = dto.Username.ToLower().Trim(),
+                Email = dto.Email.ToLower().Trim(),
+                PasswordHash = PasswordHasher.ComputeSha256(dto.Password),
+                Role = dto.Role.ToLower(),
+                RefId = dto.RefId,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
 
-            return _mapper.Map<UserDto>(await _repo.CreateAsync(user));
+            return ToDto(await _repo.CreateAsync(user));
         }
 
         // ── Change Password ────────────────────────────────────────────────────
@@ -82,8 +84,8 @@ namespace Hms.API.Services
             var user = await _repo.GetByIdAsync(userId)
                 ?? throw new NotFoundException("User", userId);
 
-            var currentPasswordHash = PasswordHasher.ComputeSha256(dto.CurrentPassword);
-            if (!string.Equals(currentPasswordHash, user.PasswordHash, StringComparison.Ordinal))
+            if (!string.Equals(PasswordHasher.ComputeSha256(dto.CurrentPassword),
+                                user.PasswordHash, StringComparison.Ordinal))
                 throw new BadRequestException("Current password is incorrect.");
 
             user.PasswordHash = PasswordHasher.ComputeSha256(dto.NewPassword);
@@ -97,7 +99,8 @@ namespace Hms.API.Services
                 ?? throw new NotFoundException("User", userId);
 
             if (!AllowedRoles.Contains(role.ToLower()))
-                throw new BadRequestException($"'{role}' is not a valid role. Allowed: {string.Join(", ", AllowedRoles)}");
+                throw new BadRequestException(
+                    $"'{role}' is not a valid role. Allowed: {string.Join(", ", AllowedRoles)}");
 
             user.Role = role.ToLower();
             await _repo.UpdateAsync(user);
@@ -113,22 +116,13 @@ namespace Hms.API.Services
             await _repo.UpdateAsync(user);
         }
 
-        // ── Delete User ────────────────────────────────────────────────────────
-        public async Task DeleteUserAsync(int userId)
+        // ── Private helpers ────────────────────────────────────────────────────
+        private LoginResponseDto BuildTokenResponse(User user)
         {
-            if (await _repo.GetByIdAsync(userId) is null)
-                throw new NotFoundException("User", userId);
-
-            await _repo.DeleteAsync(userId);
-        }
-
-        // ── Helper ─────────────────────────────────────────────────────────────
-        private LoginResponseDto GenerateTokenResponse(User user)
-        {
-            var jwtSection = _config.GetSection("JwtSettings");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Secret"]!));
+            var jwt = _config.GetSection("JwtSettings");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Secret"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expiry = DateTime.UtcNow.AddMinutes(int.Parse(jwtSection["ExpiryInMinutes"]!));
+            var expiry = DateTime.UtcNow.AddMinutes(int.Parse(jwt["ExpiryInMinutes"]!));
 
             var claims = new[]
             {
@@ -139,8 +133,8 @@ namespace Hms.API.Services
             };
 
             var token = new JwtSecurityToken(
-                issuer: jwtSection["Issuer"],
-                audience: jwtSection["Audience"],
+                issuer: jwt["Issuer"],
+                audience: jwt["Audience"],
                 claims: claims,
                 expires: expiry,
                 signingCredentials: creds
@@ -148,11 +142,22 @@ namespace Hms.API.Services
 
             return new LoginResponseDto
             {
-                Token     = new JwtSecurityTokenHandler().WriteToken(token),
-                Username  = user.Username,
-                Role      = user.Role,
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Username = user.Username,
+                Role = user.Role,
                 ExpiresAt = expiry
             };
         }
+
+        private static UserDto ToDto(User u) => new()
+        {
+            UserId = u.UserId,
+            Username = u.Username,
+            Email = u.Email,
+            Role = u.Role,
+            RefId = u.RefId,
+            IsActive = u.IsActive,
+            CreatedAt = u.CreatedAt
+        };
     }
 }

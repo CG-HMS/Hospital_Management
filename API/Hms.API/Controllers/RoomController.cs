@@ -1,4 +1,5 @@
 ﻿using Hms.API.DTOs;
+using Hms.API.Exceptions;
 using Hms.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,7 @@ namespace Hms.API.Controllers
         private readonly IRoomService _roomService;
         public RoomController(IRoomService roomService) => _roomService = roomService;
 
-        // GET api/rooms  — ANY ROLE
+        // ── GET /api/rooms  — ANY ROLE ────────────────────────────────────────
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -21,8 +22,8 @@ namespace Hms.API.Controllers
             return Ok(result);
         }
 
-        // GET api/rooms/available  — ANY ROLE
-        // NOTE: this must come before api/rooms/{id} to avoid route conflict
+        // ── GET /api/rooms/available  — ANY ROLE ──────────────────────────────
+        // Must be declared before /{id} to avoid ASP.NET Core routing conflict
         [HttpGet("available")]
         public async Task<IActionResult> GetAvailable()
         {
@@ -30,64 +31,75 @@ namespace Hms.API.Controllers
             return Ok(result);
         }
 
-        // GET api/rooms/{id}  — ANY ROLE
+        // ── GET /api/rooms/{id}  — ANY ROLE ───────────────────────────────────
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
+            if (id <= 0) throw new BadRequestException("Room number must be a positive integer.");
+
             var result = await _roomService.GetByIdAsync(id);
             return Ok(result);
         }
 
-        // GET api/rooms/block/{floor}/{code}  — ANY ROLE
+        // ── GET /api/rooms/block/{floor}/{code}  — ANY ROLE ───────────────────
         [HttpGet("block/{floor:int}/{code:int}")]
         public async Task<IActionResult> GetByBlock(int floor, int code)
         {
+            if (floor <= 0) throw new BadRequestException("Block floor must be a positive integer.");
+            if (code < 0) throw new BadRequestException("Block code must be zero or positive.");
+
             var result = await _roomService.GetByBlockAsync(floor, code);
             return Ok(result);
         }
 
-        // GET api/rooms/type/{type}  — ANY ROLE
+        // ── GET /api/rooms/type/{type}  — ANY ROLE ────────────────────────────
         [HttpGet("type/{type}")]
         public async Task<IActionResult> GetByType(string type)
         {
+            if (string.IsNullOrWhiteSpace(type))
+                throw new BadRequestException("Room type cannot be empty.");
+
             var result = await _roomService.GetByTypeAsync(type);
             return Ok(result);
         }
 
-        // POST api/rooms  — ADMIN
-        [HttpPost]
+        // ── POST /api/rooms/{roomNumber}  — ADMIN ─────────────────────────────
+        // RoomNumber is in the route — the client cannot set it inside the body.
+        // Body only contains the editable fields (RoomWriteDto).
+        [HttpPost("{roomNumber:int}")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Create([FromBody] CreateRoomDto dto)
+        public async Task<IActionResult> Create(int roomNumber, [FromBody] RoomWriteDto dto)
         {
-            var result = await _roomService.CreateAsync(dto);
+            if (roomNumber <= 0) throw new BadRequestException("Room number must be a positive integer.");
+
+            var result = await _roomService.CreateAsync(roomNumber, dto);
             return CreatedAtAction(nameof(GetById), new { id = result.RoomNumber }, result);
         }
 
-        // PUT api/rooms/{id}  — ADMIN
+        // ── PUT /api/rooms/{id}  — ADMIN ──────────────────────────────────────
+        // ID comes from the route — RoomNumber cannot be changed via the body.
         [HttpPut("{id:int}")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateRoomDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] RoomWriteDto dto)
         {
+            if (id <= 0) throw new BadRequestException("Room number must be a positive integer.");
+
             var result = await _roomService.UpdateAsync(id, dto);
             return Ok(result);
         }
 
-        // PATCH api/rooms/{id}/availability  — ADMIN
+        // ── PATCH /api/rooms/{id}/availability  — ADMIN ───────────────────────
+        // Body: true = mark unavailable | false = mark available (plain JSON bool)
         [HttpPatch("{id:int}/availability")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> UpdateAvailability(int id, [FromBody] UpdateAvailabilityDto dto)
+        public async Task<IActionResult> UpdateAvailability(int id, [FromBody] bool unavailable)
         {
-            await _roomService.UpdateAvailabilityAsync(id, dto.Unavailable);
-            return Ok(new { message = $"Room {id} marked as {(dto.Unavailable ? "unavailable" : "available")}." });
+            if (id <= 0) throw new BadRequestException("Room number must be a positive integer.");
+
+            await _roomService.UpdateAvailabilityAsync(id, unavailable);
+            return Ok(new { message = $"Room {id} marked as {(unavailable ? "unavailable" : "available")}." });
         }
 
-        // DELETE api/rooms/{id}  — ADMIN
-        //[HttpDelete("{id:int}")]
-        //[Authorize(Roles = "admin")]
-        //public async Task<IActionResult> Delete(int id)
-        //{
-        //    await _roomService.DeleteAsync(id);
-        //    return NoContent();
-        //}
+        // Delete → fully removed.
     }
 }

@@ -3,17 +3,19 @@ using Hms.API.DTOs;
 
 namespace Hms.API.Validators
 {
+    // ── Auth validators ────────────────────────────────────────────────────────
+
     public class LoginRequestDtoValidator : AbstractValidator<LoginRequestDto>
     {
         public LoginRequestDtoValidator()
         {
             RuleFor(x => x.Email)
-                .NotEmpty()
-                .EmailAddress()
+                .NotEmpty().WithMessage("Email is required.")
+                .EmailAddress().WithMessage("A valid email address is required.")
                 .MaximumLength(150);
 
             RuleFor(x => x.Password)
-                .NotEmpty()
+                .NotEmpty().WithMessage("Password is required.")
                 .MaximumLength(255);
         }
     }
@@ -25,23 +27,23 @@ namespace Hms.API.Validators
         public CreateUserDtoValidator()
         {
             RuleFor(x => x.Username)
-                .NotEmpty()
-                .MaximumLength(100);
+                .NotEmpty().WithMessage("Username is required.")
+                .MaximumLength(100).WithMessage("Username cannot exceed 100 characters.");
 
             RuleFor(x => x.Email)
-                .NotEmpty()
-                .EmailAddress()
+                .NotEmpty().WithMessage("Email is required.")
+                .EmailAddress().WithMessage("A valid email address is required.")
                 .MaximumLength(150);
 
             RuleFor(x => x.Password)
-                .NotEmpty()
+                .NotEmpty().WithMessage("Password is required.")
+                .MinimumLength(6).WithMessage("Password must be at least 6 characters.")
                 .MaximumLength(255);
 
             RuleFor(x => x.Role)
-                .NotEmpty()
-                .MaximumLength(20)
-                .Must(role => AllowedRoles.Contains(role.ToLower()))
-                .WithMessage($"Role must be one of: {string.Join(", ", AllowedRoles)}");
+                .NotEmpty().WithMessage("Role is required.")
+                .Must(r => AllowedRoles.Contains(r.ToLower()))
+                .WithMessage($"Role must be one of: {string.Join(", ", AllowedRoles)}.");
         }
     }
 
@@ -50,74 +52,39 @@ namespace Hms.API.Validators
         public ChangePasswordDtoValidator()
         {
             RuleFor(x => x.CurrentPassword)
-                .NotEmpty()
-                .MaximumLength(255);
+                .NotEmpty().WithMessage("Current password is required.");
 
             RuleFor(x => x.NewPassword)
-                .NotEmpty()
-                .MaximumLength(255);
+                .NotEmpty().WithMessage("New password is required.")
+                .MinimumLength(6).WithMessage("New password must be at least 6 characters.")
+                .NotEqual(x => x.CurrentPassword)
+                .WithMessage("New password must be different from current password.");
         }
     }
 
-    public class UpdateRoleDtoValidator : AbstractValidator<UpdateRoleDto>
-    {
-        private static readonly string[] AllowedRoles = ["admin", "physician", "nurse", "patient"];
+    // UpdateRoleDtoValidator        → REMOVED (DTO removed, role is bare string param)
+    // UpdateStatusDtoValidator      → REMOVED (bool is a value type — NotNull() on bool is always true, dead code)
 
-        public UpdateRoleDtoValidator()
-        {
-            RuleFor(x => x.Role)
-                .NotEmpty()
-                .MaximumLength(20)
-                .Must(role => AllowedRoles.Contains(role.ToLower()))
-                .WithMessage($"Role must be one of: {string.Join(", ", AllowedRoles)}");
-        }
-    }
+    // ── Room validators ────────────────────────────────────────────────────────
 
-    public class UpdateStatusDtoValidator : AbstractValidator<UpdateStatusDto>
-    {
-        public UpdateStatusDtoValidator()
-        {
-            RuleFor(x => x.IsActive).NotNull();
-        }
-    }
+    // RoomDtoValidator              → REMOVED (RoomDto is a response DTO — never validated as input)
+    // CreateRoomDtoValidator        → REMOVED (merged into RoomWriteDtoValidator)
+    // UpdateRoomDtoValidator        → REMOVED (merged into RoomWriteDtoValidator)
+    // UpdateAvailabilityDtoValidator → REMOVED (bool is a value type — NotNull() is dead code, DTO removed)
 
-    public class RoomDtoValidator : AbstractValidator<RoomDto>
+    public class RoomWriteDtoValidator : AbstractValidator<RoomWriteDto>
     {
-        public RoomDtoValidator()
+        public RoomWriteDtoValidator()
         {
-            RuleFor(x => x.RoomNumber).GreaterThan(0);
-            RuleFor(x => x.RoomType).NotEmpty().MaximumLength(50);
-            RuleFor(x => x.BlockFloor).GreaterThan(0);
-            RuleFor(x => x.BlockCode).GreaterThanOrEqualTo(0);
-        }
-    }
+            RuleFor(x => x.RoomType)
+                .NotEmpty().WithMessage("Room type is required.")
+                .MaximumLength(30).WithMessage("Room type cannot exceed 30 characters.");
 
-    public class CreateRoomDtoValidator : AbstractValidator<CreateRoomDto>
-    {
-        public CreateRoomDtoValidator()
-        {
-            RuleFor(x => x.RoomNumber).GreaterThan(0);
-            RuleFor(x => x.RoomType).NotEmpty().MaximumLength(50);
-            RuleFor(x => x.BlockFloor).GreaterThan(0);
-            RuleFor(x => x.BlockCode).GreaterThanOrEqualTo(0);
-        }
-    }
+            RuleFor(x => x.BlockFloor)
+                .GreaterThan(0).WithMessage("Block floor must be a positive integer.");
 
-    public class UpdateRoomDtoValidator : AbstractValidator<UpdateRoomDto>
-    {
-        public UpdateRoomDtoValidator()
-        {
-            RuleFor(x => x.RoomType).NotEmpty().MaximumLength(50);
-            RuleFor(x => x.BlockFloor).GreaterThan(0);
-            RuleFor(x => x.BlockCode).GreaterThanOrEqualTo(0);
-        }
-    }
-
-    public class UpdateAvailabilityDtoValidator : AbstractValidator<UpdateAvailabilityDto>
-    {
-        public UpdateAvailabilityDtoValidator()
-        {
-            RuleFor(x => x.Unavailable).NotNull();
+            RuleFor(x => x.BlockCode)
+                .GreaterThanOrEqualTo(0).WithMessage("Block code must be zero or positive.");
         }
     }
 }

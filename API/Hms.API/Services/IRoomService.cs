@@ -9,9 +9,11 @@ namespace Hms.API.Services
         Task<IEnumerable<RoomDto>> GetAvailableAsync();
         Task<IEnumerable<RoomDto>> GetByBlockAsync(int floor, int code);
         Task<IEnumerable<RoomDto>> GetByTypeAsync(string type);
-        Task<RoomDto> CreateAsync(CreateRoomDto dto);
-        Task<RoomDto> UpdateAsync(int roomNumber, UpdateRoomDto dto);
+
+        // roomNumber is passed separately because it comes from the route, not the body
+        Task<RoomDto> CreateAsync(int roomNumber, RoomWriteDto dto);
+        Task<RoomDto> UpdateAsync(int roomNumber, RoomWriteDto dto);
         Task UpdateAvailabilityAsync(int roomNumber, bool unavailable);
-        Task DeleteAsync(int roomNumber);
+        // DeleteAsync → REMOVED — delete endpoint not exposed
     }
 }

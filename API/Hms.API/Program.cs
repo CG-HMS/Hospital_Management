@@ -1,4 +1,3 @@
-
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hms.API.Data;
@@ -9,7 +8,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using AutoMapper;
 
 namespace Hms.API
 {
@@ -19,12 +17,12 @@ namespace Hms.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // ── Database ─────────────────────────────────────────────────────────
+            // ── Database ───────────────────────────────────────────────────────
             builder.Services.AddDbContext<MyAppDbContext>(options =>
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // ── JWT Authentication ────────────────────────────────────────────────
+            // ── JWT Authentication ─────────────────────────────────────────────
             var jwt = builder.Configuration.GetSection("JwtSettings");
             var key = Encoding.UTF8.GetBytes(jwt["Secret"]!);
 
@@ -46,21 +44,20 @@ namespace Hms.API
 
             builder.Services.AddAuthorization();
 
-            // ── FluentValidation ──────────────────────────────────────────────────
+            // ── FluentValidation ───────────────────────────────────────────────
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-            // ── Repositories ──────────────────────────────────────────────────────
+            // ── Repositories ───────────────────────────────────────────────────
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
             builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 
-            // ── Services ──────────────────────────────────────────────────────────
+            // ── Services ───────────────────────────────────────────────────────
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IRoomService, RoomService>();
 
-            // ── Controllers + Swagger ─────────────────────────────────────────────
+            // ── Controllers + Swagger ──────────────────────────────────────────
             builder.Services.AddControllers();
-            builder.Services.AddAutoMapper(typeof(Program));
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
@@ -82,7 +79,7 @@ namespace Hms.API
                             Reference = new Microsoft.OpenApi.Models.OpenApiReference
                             {
                                 Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                                Id = "Bearer"
+                                Id   = "Bearer"
                             }
                         },
                         Array.Empty<string>()
@@ -92,8 +89,8 @@ namespace Hms.API
 
             var app = builder.Build();
 
-            // ── Middleware Pipeline ───────────────────────────────────────────────
-            app.UseMiddleware<ExceptionMiddleware>();  // ← must be first
+            // ── Middleware Pipeline ────────────────────────────────────────────
+            app.UseMiddleware<ExceptionMiddleware>(); // ← must be first
 
             if (app.Environment.IsDevelopment())
             {
@@ -102,7 +99,7 @@ namespace Hms.API
             }
 
             app.UseHttpsRedirection();
-            app.UseAuthentication(); // ← before UseAuthorization
+            app.UseAuthentication(); // ← must come before UseAuthorization
             app.UseAuthorization();
             app.MapControllers();
 

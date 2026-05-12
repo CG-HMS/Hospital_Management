@@ -26,40 +26,42 @@ namespace Hms.API.Services
         public async Task<IEnumerable<RoomDto>> GetByBlockAsync(int floor, int code)
         {
             if (!await _repo.BlockExistsAsync(floor, code))
-                throw new NotFoundException($"Block Floor={floor}, Code={code} was not found.");
+                throw new NotFoundException($"Block (Floor={floor}, Code={code}) was not found.");
             return (await _repo.GetByBlockAsync(floor, code)).Select(ToDto);
         }
 
         public async Task<IEnumerable<RoomDto>> GetByTypeAsync(string type)
             => (await _repo.GetByTypeAsync(type)).Select(ToDto);
 
-        public async Task<RoomDto> CreateAsync(CreateRoomDto dto)
+        public async Task<RoomDto> CreateAsync(int roomNumber, RoomWriteDto dto)
         {
-            if (await _repo.ExistsAsync(dto.RoomNumber))
-                throw new ConflictException($"Room number {dto.RoomNumber} already exists.");
+            if (await _repo.ExistsAsync(roomNumber))
+                throw new ConflictException($"Room {roomNumber} already exists.");
 
+            // Auto-creates the Block row if it doesn't exist yet
             await _repo.EnsureBlockExistsAsync(dto.BlockFloor, dto.BlockCode);
 
             var room = new Room
             {
-                RoomNumber = dto.RoomNumber,
+                RoomNumber = roomNumber,           // from route — client cannot set it in body
                 RoomType = dto.RoomType,
                 BlockFloor = dto.BlockFloor,
                 BlockCode = dto.BlockCode,
-                Unavailable = false
+                Unavailable = false                 // always starts available
             };
 
             return ToDto(await _repo.CreateAsync(room));
         }
 
-        public async Task<RoomDto> UpdateAsync(int roomNumber, UpdateRoomDto dto)
+        public async Task<RoomDto> UpdateAsync(int roomNumber, RoomWriteDto dto)
         {
             var room = await _repo.GetByIdAsync(roomNumber)
                 ?? throw new NotFoundException("Room", roomNumber);
 
             if (!await _repo.BlockExistsAsync(dto.BlockFloor, dto.BlockCode))
-                throw new NotFoundException($"Block Floor={dto.BlockFloor}, Code={dto.BlockCode} does not exist.");
+                throw new NotFoundException($"Block (Floor={dto.BlockFloor}, Code={dto.BlockCode}) does not exist.");
 
+            // Manual field update — only editable fields, RoomNumber (PK) is never touched
             room.RoomType = dto.RoomType;
             room.BlockFloor = dto.BlockFloor;
             room.BlockCode = dto.BlockCode;
@@ -75,13 +77,6 @@ namespace Hms.API.Services
 
             room.Unavailable = unavailable;
             await _repo.UpdateAsync(room);
-        }
-
-        public async Task DeleteAsync(int roomNumber)
-        {
-            if (!await _repo.ExistsAsync(roomNumber))
-                throw new NotFoundException("Room", roomNumber);
-            await _repo.DeleteAsync(roomNumber);
         }
 
         private static RoomDto ToDto(Room r) => new()
