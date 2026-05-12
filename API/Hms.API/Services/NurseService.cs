@@ -1,5 +1,5 @@
-using AutoMapper;
 using Hms.API.DTOs;
+using Hms.API.Exceptions;
 using Hms.API.Models;
 using Hms.API.Repository;
 
@@ -8,57 +8,103 @@ namespace Hms.API.Services;
 public class NurseService : INurseService
 {
     private readonly INurseRepository _repository;
-    private readonly IMapper _mapper;
 
-    public NurseService(INurseRepository repository, IMapper mapper)
+    public NurseService(INurseRepository repository)
     {
         _repository = repository;
-        _mapper = mapper;
     }
 
     public async Task<List<NurseDto>> GetAllAsync()
     {
         var nurses = await _repository.GetAllAsync();
-        return _mapper.Map<List<NurseDto>>(nurses);
+        return nurses.Select(MapToDto).ToList();
     }
 
     public async Task<NurseDto?> GetByIdAsync(int id)
     {
         var nurse = await _repository.GetByIdAsync(id);
-        return nurse == null ? null : _mapper.Map<NurseDto>(nurse);
+        return nurse == null ? null : MapToDto(nurse);
     }
 
-    public async Task<NurseDto> AddAsync(NurseDto dto)
+    public async Task<NurseDto> AddAsync(NurseCreateDto dto)
     {
-        var nurse = _mapper.Map<Nurse>(dto);
-        await _repository.AddAsync(nurse);
-        return _mapper.Map<NurseDto>(nurse);
-    }
-
-    public async Task<bool> UpdateAsync(int id, NurseDto dto)
-    {
-        var nurse = await _repository.GetByIdAsync(id);
-        if (nurse == null)
+        try
         {
-            return false;
+            var nurse = new Nurse
+            {
+                Name = dto.Name,
+                Position = dto.Position,
+                Registered = dto.Registered,
+                Ssn = dto.Ssn
+            };
+
+            await _repository.AddAsync(nurse);
+            return MapToDto(nurse);
         }
-
-        _mapper.Map(dto, nurse);
-
-        await _repository.UpdateAsync(nurse);
-        return true;
+        catch (Exception ex)
+        {
+            throw new ValidationException($"Could not create nurse: {ex.Message}");
+        }
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task UpdateAsync(int id, NurseUpdateDto dto)
     {
-        var nurse = await _repository.GetByIdAsync(id);
-        if (nurse == null)
+        try
         {
-            return false;
-        }
+            var nurse = await _repository.GetByIdAsync(id);
+            if (nurse == null)
+            {
+                throw new NotFoundException("Nurse not found.");
+            }
 
-        await _repository.DeleteAsync(nurse);
-        return true;
+            nurse.Name = dto.Name;
+            nurse.Position = dto.Position;
+            nurse.Registered = dto.Registered;
+
+            await _repository.UpdateAsync(nurse);
+        }
+        catch (NotFoundException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new ValidationException($"Could not update nurse: {ex.Message}");
+        }
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        try
+        {
+            var nurse = await _repository.GetByIdAsync(id);
+            if (nurse == null)
+            {
+                throw new NotFoundException("Nurse not found.");
+            }
+
+            await _repository.DeleteAsync(nurse);
+        }
+        catch (NotFoundException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new ValidationException($"Could not delete nurse: {ex.Message}");
+        }
+    }
+
+    private static NurseDto MapToDto(Nurse nurse)
+    {
+        return new NurseDto
+        {
+            EmployeeId = nurse.EmployeeId,
+            Name = nurse.Name,
+            Position = nurse.Position,
+            Registered = nurse.Registered,
+            Ssn = nurse.Ssn
+        };
     }
 
 }

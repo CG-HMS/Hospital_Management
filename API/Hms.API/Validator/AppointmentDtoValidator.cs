@@ -14,3 +14,25 @@ public class AppointmentDtoValidator : AbstractValidator<AppointmentDto>
         RuleFor(a => a.ExaminationRoom).NotEmpty();
     }
 }
+
+public class AppointmentCreateDtoValidator : AbstractValidator<AppointmentCreateDto>
+{
+    public AppointmentCreateDtoValidator()
+    {
+        RuleFor(a => a.Patient).GreaterThan(0);
+        RuleFor(a => a.Physician).GreaterThan(0);
+        RuleFor(a => a.Starto).LessThan(a => a.Endo);
+        RuleFor(a => a.ExaminationRoom).NotEmpty();
+    }
+}
+
+public class AppointmentUpdateDtoValidator : AbstractValidator<AppointmentUpdateDto>
+{
+    public AppointmentUpdateDtoValidator()
+    {
+        RuleFor(a => a.Patient).GreaterThan(0);
+        RuleFor(a => a.Physician).GreaterThan(0);
+        RuleFor(a => a.Starto).LessThan(a => a.Endo);
+        RuleFor(a => a.ExaminationRoom).NotEmpty();
+    }
+}

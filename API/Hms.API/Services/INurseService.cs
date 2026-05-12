@@ -6,7 +6,7 @@ public interface INurseService
 {
     Task<List<NurseDto>> GetAllAsync();
     Task<NurseDto?> GetByIdAsync(int id);
-    Task<NurseDto> AddAsync(NurseDto dto);
-    Task<bool> UpdateAsync(int id, NurseDto dto);
-    Task<bool> DeleteAsync(int id);
+    Task<NurseDto> AddAsync(NurseCreateDto dto);
+    Task UpdateAsync(int id, NurseUpdateDto dto);
+    Task DeleteAsync(int id);
 }

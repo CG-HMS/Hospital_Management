@@ -35,34 +35,53 @@ namespace Hms.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<AppointmentDto>> Create(AppointmentDto dto)
+        public async Task<ActionResult<AppointmentDto>> Create(AppointmentCreateDto dto)
         {
-            var created = await _service.AddAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.AppointmentId }, created);
+            try
+            {
+                var created = await _service.AddAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = created.AppointmentId }, created);
+            }
+            catch (Exceptions.ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, AppointmentDto dto)
+        public async Task<IActionResult> Update(int id, AppointmentUpdateDto dto)
         {
-            var updated = await _service.UpdateAsync(id, dto);
-            if (!updated)
+            try
             {
-                return NotFound();
+                await _service.UpdateAsync(id, dto);
+                return NoContent();
             }
-
-            return NoContent();
+            catch (Exceptions.NotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exceptions.ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _service.DeleteAsync(id);
-            if (!deleted)
+            try
             {
-                return NotFound();
+                await _service.DeleteAsync(id);
+                return NoContent();
             }
-
-            return NoContent();
+            catch (Exceptions.NotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exceptions.ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

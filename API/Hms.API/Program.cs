@@ -1,7 +1,6 @@
 
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Hms.API.Mapping;
 using Hms.API.Repository;
 using Hms.API.Validator;
 
@@ -25,7 +24,6 @@ namespace Hms.API
             builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
             builder.Services.AddScoped<Services.INurseService, Services.NurseService>();
             builder.Services.AddScoped<Services.IAppointmentService, Services.AppointmentService>();
-            builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<NurseDtoValidator>();
 

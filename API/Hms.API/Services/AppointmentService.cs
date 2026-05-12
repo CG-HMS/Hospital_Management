@@ -1,5 +1,5 @@
-using AutoMapper;
 using Hms.API.DTOs;
+using Hms.API.Exceptions;
 using Hms.API.Models;
 using Hms.API.Repository;
 
@@ -8,57 +8,110 @@ namespace Hms.API.Services;
 public class AppointmentService : IAppointmentService
 {
     private readonly IAppointmentRepository _repository;
-    private readonly IMapper _mapper;
 
-    public AppointmentService(IAppointmentRepository repository, IMapper mapper)
+    public AppointmentService(IAppointmentRepository repository)
     {
         _repository = repository;
-        _mapper = mapper;
     }
 
     public async Task<List<AppointmentDto>> GetAllAsync()
     {
         var appointments = await _repository.GetAllAsync();
-        return _mapper.Map<List<AppointmentDto>>(appointments);
+        return appointments.Select(MapToDto).ToList();
     }
 
     public async Task<AppointmentDto?> GetByIdAsync(int id)
     {
         var appointment = await _repository.GetByIdAsync(id);
-        return appointment == null ? null : _mapper.Map<AppointmentDto>(appointment);
+        return appointment == null ? null : MapToDto(appointment);
     }
 
-    public async Task<AppointmentDto> AddAsync(AppointmentDto dto)
+    public async Task<AppointmentDto> AddAsync(AppointmentCreateDto dto)
     {
-        var appointment = _mapper.Map<Appointment>(dto);
-        await _repository.AddAsync(appointment);
-        return _mapper.Map<AppointmentDto>(appointment);
-    }
-
-    public async Task<bool> UpdateAsync(int id, AppointmentDto dto)
-    {
-        var appointment = await _repository.GetByIdAsync(id);
-        if (appointment == null)
+        try
         {
-            return false;
+            var appointment = new Appointment
+            {
+                Patient = dto.Patient,
+                PrepNurse = dto.PrepNurse,
+                Physician = dto.Physician,
+                Starto = dto.Starto,
+                Endo = dto.Endo,
+                ExaminationRoom = dto.ExaminationRoom
+            };
+
+            await _repository.AddAsync(appointment);
+            return MapToDto(appointment);
         }
-
-        _mapper.Map(dto, appointment);
-
-        await _repository.UpdateAsync(appointment);
-        return true;
+        catch (Exception ex)
+        {
+            throw new ValidationException($"Could not create appointment: {ex.Message}");
+        }
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task UpdateAsync(int id, AppointmentUpdateDto dto)
     {
-        var appointment = await _repository.GetByIdAsync(id);
-        if (appointment == null)
+        try
         {
-            return false;
-        }
+            var appointment = await _repository.GetByIdAsync(id);
+            if (appointment == null)
+            {
+                throw new NotFoundException("Appointment not found.");
+            }
 
-        await _repository.DeleteAsync(appointment);
-        return true;
+            appointment.Patient = dto.Patient;
+            appointment.PrepNurse = dto.PrepNurse;
+            appointment.Physician = dto.Physician;
+            appointment.Starto = dto.Starto;
+            appointment.Endo = dto.Endo;
+            appointment.ExaminationRoom = dto.ExaminationRoom;
+
+            await _repository.UpdateAsync(appointment);
+        }
+        catch (NotFoundException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new ValidationException($"Could not update appointment: {ex.Message}");
+        }
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        try
+        {
+            var appointment = await _repository.GetByIdAsync(id);
+            if (appointment == null)
+            {
+                throw new NotFoundException("Appointment not found.");
+            }
+
+            await _repository.DeleteAsync(appointment);
+        }
+        catch (NotFoundException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new ValidationException($"Could not delete appointment: {ex.Message}");
+        }
+    }
+
+    private static AppointmentDto MapToDto(Appointment appointment)
+    {
+        return new AppointmentDto
+        {
+            AppointmentId = appointment.AppointmentId,
+            Patient = appointment.Patient,
+            PrepNurse = appointment.PrepNurse,
+            Physician = appointment.Physician,
+            Starto = appointment.Starto,
+            Endo = appointment.Endo,
+            ExaminationRoom = appointment.ExaminationRoom
+        };
     }
 
 }
