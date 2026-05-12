@@ -23,7 +23,7 @@ public class PatientService : IPatientService
 
         return _mapper.Map<IEnumerable<PatientResponseDto>>(patients);
     }
-     public async Task<PatientResponseDto?> GetPatientByIdAsync(int ssn)
+    public async Task<PatientResponseDto?> GetPatientByIdAsync(int ssn)
     {
         var patient = await _repository.GetByIdAsync(ssn);
 
@@ -33,7 +33,7 @@ public class PatientService : IPatientService
         return _mapper.Map<PatientResponseDto>(patient);
     }
 
-    public async Task<PatientResponseDto> CreatePatientAsync(CreatePatientDto dto)
+    public async Task<PatientResponseDto> CreatePatientAsync(PatientRequestDto dto)
     {
         var patient = _mapper.Map<Patient>(dto);
 
@@ -41,14 +41,14 @@ public class PatientService : IPatientService
 
         return _mapper.Map<PatientResponseDto>(patient);
     }
-    public async Task<bool> UpdatePatientAsync(int ssn, UpdatePatientDto dto)
+
+    public async Task<bool> UpdatePatientAsync(int ssn, PatientRequestDto dto)
     {
         var patient = await _repository.GetByIdAsync(ssn);
 
         if (patient == null)
             return false;
-
-        _mapper.Map(dto, patient);
+             _mapper.Map(dto, patient);
 
         await _repository.UpdateAsync(patient);
 

@@ -2,15 +2,15 @@ using Hms.API.DTOs.Medication;
 
 namespace Hms.API.Services.Interfaces;
 
-    public interface IMedicationService
-    {
-        Task<IEnumerable<MedicationResponseDto>> GetAllAsync();
+public interface IMedicationService
+{
+    Task<IEnumerable<MedicationResponseDto>> GetAllMedicationsAsync();
 
-        Task<MedicationResponseDto?> GetByIdAsync(int code);
+    Task<MedicationResponseDto?> GetMedicationByIdAsync(int code);
 
-        Task<MedicationResponseDto> CreateAsync(CreateMedicationDto dto);
+    Task<MedicationResponseDto> CreateMedicationAsync(MedicationRequestDto dto);
 
-        Task<bool> UpdateAsync(int code, UpdateMedicationDto dto);
+    Task<bool> UpdateMedicationAsync(int code, MedicationRequestDto dto);
 
-        Task<bool> DeleteAsync(int code);
-    }
+    Task<bool> DeleteMedicationAsync(int code);
+}

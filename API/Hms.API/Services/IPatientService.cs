@@ -8,9 +8,9 @@ public interface IPatientService
 
     Task<PatientResponseDto?> GetPatientByIdAsync(int ssn);
 
-    Task<PatientResponseDto> CreatePatientAsync(CreatePatientDto dto);
+    Task<PatientResponseDto> CreatePatientAsync(PatientRequestDto dto);
 
-    Task<bool> UpdatePatientAsync(int ssn, UpdatePatientDto dto);
+    Task<bool> UpdatePatientAsync(int ssn, PatientRequestDto dto);
 
     Task<bool> DeletePatientAsync(int ssn);
 }

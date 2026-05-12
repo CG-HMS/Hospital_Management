@@ -3,7 +3,7 @@ using Hms.API.DTOs.Patient;
 
 namespace Hms.API.Validator;
 
-public class PatientValidator : AbstractValidator<CreatePatientDto>
+public class PatientValidator : AbstractValidator<PatientRequestDto>
 {
     public PatientValidator()
     {

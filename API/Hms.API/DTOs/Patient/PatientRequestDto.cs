@@ -1,6 +1,6 @@
 namespace Hms.API.DTOs.Patient;
 
-public class CreatePatientDto
+public class PatientRequestDto
 {
     public int Ssn { get; set; }
 
