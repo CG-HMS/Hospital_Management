@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hms.API.Data;
+using Hms.API.Middleware;
 using Hms.API.Repository;
 using Hms.API.Services;
 using Hms.API.Validator;
@@ -26,7 +27,6 @@ namespace Hms.API
 
             // Add FluentValidation
             builder.Services.AddFluentValidationAutoValidation();
-            builder.Services.AddFluentValidationClientsideAdapters();
             builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
             // Add DbContext
@@ -51,6 +51,9 @@ namespace Hms.API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            // Add global exception handling middleware
+            app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
             app.UseHttpsRedirection();
 
