@@ -11,7 +11,7 @@ namespace Hms.API.Services
         Task<IEnumerable<DepartmentDto>> GetDepartmentsByPhysician(int physicianId);
         Task<IEnumerable<ProcedureDto>> GetProceduresByPhysician(int physicianId);
         Task<bool> AssignDepartment(int physicianId, AssignDepartmentDto dto);
-        Task<IEnumerable<AppointmentDto>> GetAppointmentsByPhysician(int physicianId);
+        Task<IEnumerable<AppointDto>> GetAppointmentsByPhysician(int physicianId);
         Task<IEnumerable<PatientDto>> GetPatientsByPhysician(int physicianId);
 
     }

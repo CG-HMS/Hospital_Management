@@ -51,13 +51,13 @@ namespace Hms.API.Repository
                                  .AnyAsync(d => d.DepartmentId == departmentId);
         }
 
-        public async Task<IEnumerable<AppointmentDto>> GetAppointmentsByPhysician(int physicianId)
+        public async Task<IEnumerable<AppointDto>> GetAppointmentsByPhysician(int physicianId)
         {
             return await (from a in _context.Appointments
                           join p in _context.Patients
                               on a.Patient equals p.Ssn
                           where a.Physician == physicianId
-                          select new AppointmentDto
+                          select new AppointDto
                           {
                               AppointmentId = a.AppointmentId,
                               PatientName = p.Name,

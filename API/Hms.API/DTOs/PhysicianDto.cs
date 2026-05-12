@@ -47,7 +47,7 @@
             = string.Empty;
     }
 
-    public class AppointmentDto
+    public class AppointDto
     {
         public int AppointmentId { get; set; }
 

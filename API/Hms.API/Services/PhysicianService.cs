@@ -89,7 +89,7 @@ namespace Hms.API.Services
             return physicians.Select(MapToDto);
         }
 
-        public async Task<IEnumerable<AppointmentDto>> GetAppointmentsByPhysician(int physicianId)
+        public async Task<IEnumerable<AppointDto>> GetAppointmentsByPhysician(int physicianId)
         {
             return await _repository.GetAppointmentsByPhysician(physicianId);
         }

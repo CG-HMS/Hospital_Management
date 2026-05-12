@@ -19,7 +19,7 @@ namespace Hms.API.Repository
 
         Task<IEnumerable<ProcedureDto>> GetProceduresByPhysician(int physicianId);
 
-        Task<IEnumerable<AppointmentDto>> GetAppointmentsByPhysician(int physicianId);
+        Task<IEnumerable<AppointDto>> GetAppointmentsByPhysician(int physicianId);
 
         Task<IEnumerable<PatientDto>> GetPatientsByPhysician(int physicianId);
 
