@@ -1,35 +1,43 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Hms.API.DTOs
+﻿namespace Hms.API.DTOs
 {
     public class ProcedureDto
     {
         public int Code { get; set; }
+
         public string Name { get; set; }
+            = string.Empty;
+
         public decimal Cost { get; set; }
     }
-    public class CreateProcedureDto
-    {
-        public string Name { get; set; }
-        public float Cost { get; set; }
-    }
-    public class UpdateProcedureDto
+
+    public class ProcedureWriteDto
     {
         public string? Name { get; set; }
-        public float? Cost { get; set; }
+
+        public decimal? Cost { get; set; }
     }
-    public class ProcedurePhysicianDto
-    {
-        public int EmployeeId { get; set; }
-        public string Name { get; set; }
-        public string Position { get; set; }
-    }
+        public class ProcedurePhysicianDto
+        {
+            public int EmployeeId { get; set; }
+
+            public string Name { get; set; }
+                = string.Empty;
+
+            public string Position { get; set; }
+                = string.Empty;
+        }
     public class StayDto
     {
         public int StayId { get; set; }
+
         public string PatientName { get; set; }
+            = string.Empty;
+
         public int RoomNumber { get; set; }
+
         public DateTime StartDate { get; set; }
+
         public DateTime? EndDate { get; set; }
     }
+
 }

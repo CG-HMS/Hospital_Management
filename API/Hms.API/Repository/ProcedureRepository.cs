@@ -49,11 +49,17 @@ namespace Hms.API.Repository
                           }).ToListAsync();
         }
 
-        public async Task<IEnumerable<Procedure>> GetProceduresByCostRange(float min, float max)
+        public async Task<IEnumerable<ProcedureDto>> GetProceduresByCostRange(float min, float max)
         {
             return await _context.Procedures
-                                 .Where(p => p.Cost >= min && p.Cost <= max)
-                                 .ToListAsync();
+                .Where(p => p.Cost >= min && p.Cost <= max)
+                .Select(p => new ProcedureDto
+                {
+                    Code = p.Code,
+                    Name = p.Name,
+                    Cost = (decimal)p.Cost
+                })
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<StayDto>> GetStaysByProcedure(int code)
@@ -79,11 +85,17 @@ namespace Hms.API.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Procedure>> SearchProcedures(string name)
+        public async Task<IEnumerable<ProcedureDto>> SearchProcedures(string name)
         {
             return await _context.Procedures
-                                 .Where(p => p.Name.Contains(name))
-                                 .ToListAsync();
+        .Where(p => p.Name.Contains(name))
+        .Select(p => new ProcedureDto
+        {
+            Code = p.Code,
+            Name = p.Name,
+            Cost = (decimal)p.Cost
+        })
+        .ToListAsync();
         }
     }
 }

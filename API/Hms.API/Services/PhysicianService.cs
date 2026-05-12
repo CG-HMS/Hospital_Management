@@ -17,7 +17,7 @@ namespace Hms.API.Services
             _repository = repository;
         }
 
-        public async Task<PhysicianDto> AddPhysician(CreatePhysicianDto dto)
+        public async Task<PhysicianDto> AddPhysician(PhysicianWriteDto dto)
         {
             var physicians = await _repository.GetAll();
 
@@ -68,7 +68,7 @@ namespace Hms.API.Services
             return true;
         }
 
-        public async Task<bool> DeletePhysician(int id)
+        public async Task DeletePhysician(int id)
         {
             var physician = await _repository.GetById(id);
 
@@ -80,7 +80,7 @@ namespace Hms.API.Services
             _repository.Delete(physician);
             await _repository.Save();
 
-            return true;
+            //return true;
         }
 
         public async Task<IEnumerable<PhysicianDto>> GetAllPhysicians()
@@ -121,45 +121,5 @@ namespace Hms.API.Services
             return await _repository.GetProceduresByPhysician(physicianId);
         }
 
-        public async Task<PhysicianDto> UpdatePhysician(int id, UpdatePhysicianDto dto)
-        {
-            var physician = await _repository.GetById(id);
-
-            if (physician == null)
-            {
-                throw new NotFoundException("Physician not found");
-            }
-
-            if (dto.Name != null)
-            {
-                physician.Name = dto.Name;
-            }
-
-            if (dto.Position != null)
-            {
-                physician.Position = dto.Position;
-            }
-
-            if (dto.Ssn.HasValue)
-            {
-                physician.Ssn = dto.Ssn.Value;
-            }
-
-            await _repository.Save();
-
-            return MapToDto(physician);
-        }
-
-        // Manual mapping helpers
-        private static PhysicianDto MapToDto(Physician p)
-        {
-            return new PhysicianDto
-            {
-                EmployeeId = p.EmployeeId,
-                Name = p.Name,
-                Position = p.Position,
-                Department = p.Departments?.FirstOrDefault()?.Name ?? string.Empty
-            };
-        }
     }
 }

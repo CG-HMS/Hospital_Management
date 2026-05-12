@@ -7,11 +7,11 @@ namespace Hms.API.Services
         Task<IEnumerable<ProcedureDto>> GetAllProcedures();
         Task<ProcedureDto?> GetProcedureByCode(int code);
 
-        Task<ProcedureDto> AddProcedure(CreateProcedureDto dto);
+        Task<ProcedureDto> AddProcedure(ProcedureWriteDto dto);
 
-        Task<ProcedureDto?> UpdateProcedure(int code, UpdateProcedureDto dto);
+        Task<ProcedureDto?> UpdateProcedure(int code, ProcedureWriteDto dto);
 
-        Task<bool> DeleteProcedure(int code);
+        Task DeleteProcedure(int code);
         Task<IEnumerable<ProcedurePhysicianDto>> GetPhysiciansByProcedure(int code);
         Task<IEnumerable<StayDto>> GetStaysByProcedure(int code);
         Task<IEnumerable<ProcedureDto>> SearchProcedures(string name);

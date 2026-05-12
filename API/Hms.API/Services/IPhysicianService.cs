@@ -5,9 +5,9 @@ namespace Hms.API.Services
     {
         Task<IEnumerable<PhysicianDto>> GetAllPhysicians();
         Task<PhysicianDto?> GetPhysicianById(int id);
-        Task<PhysicianDto> AddPhysician(CreatePhysicianDto dto);
-        Task<PhysicianDto> UpdatePhysician(int id, UpdatePhysicianDto dto);
-        Task<bool> DeletePhysician(int id);
+        Task<PhysicianDto> AddPhysician(PhysicianWriteDto dto);
+        Task<PhysicianDto> UpdatePhysician(int id, PhysicianWriteDto dto);
+        Task DeletePhysician(int id);
         Task<IEnumerable<DepartmentDto>> GetDepartmentsByPhysician(int physicianId);
         Task<IEnumerable<ProcedureDto>> GetProceduresByPhysician(int physicianId);
         Task<bool> AssignDepartment(int physicianId, AssignDepartmentDto dto);

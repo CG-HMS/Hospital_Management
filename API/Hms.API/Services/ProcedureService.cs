@@ -15,7 +15,7 @@ namespace Hms.API.Services
             _repository = repository;
         }
 
-        public async Task<ProcedureDto> AddProcedure(CreateProcedureDto dto)
+        public async Task<ProcedureDto> AddProcedure(ProcedureWriteDto dto)
         {
             var procedures = await _repository.GetAll();
 
@@ -26,7 +26,7 @@ namespace Hms.API.Services
             var procedure = new Procedure
             {
                 Name = dto.Name,
-                Cost = dto.Cost,
+                Cost = (float)dto.Cost,
                 Code = nextCode
             };
 
@@ -36,7 +36,7 @@ namespace Hms.API.Services
             return MapToDto(procedure);
         }
 
-        public async Task<bool> DeleteProcedure(int code)
+        public async Task DeleteProcedure(int code)
         {
             var procedure = await _repository.GetByCode(code);
 
@@ -48,7 +48,7 @@ namespace Hms.API.Services
             _repository.Delete(procedure);
             await _repository.Save();
 
-            return true;
+            
         }
 
         public async Task<IEnumerable<ProcedureDto>> GetAllProcedures()
@@ -77,7 +77,7 @@ namespace Hms.API.Services
         public async Task<IEnumerable<ProcedureDto>> GetProceduresByCostRange(float min, float max)
         {
             var procedures = await _repository.GetProceduresByCostRange(min, max);
-            return procedures.Select(MapToDto);
+            return await _repository.GetProceduresByCostRange(min, max);
         }
 
         public async Task<IEnumerable<StayDto>> GetStaysByProcedure(int code)
@@ -88,10 +88,10 @@ namespace Hms.API.Services
         public async Task<IEnumerable<ProcedureDto>> SearchProcedures(string name)
         {
             var procedures = await _repository.SearchProcedures(name);
-            return procedures.Select(MapToDto);
+            return await _repository.SearchProcedures(name);
         }
 
-        public async Task<ProcedureDto?> UpdateProcedure(int code, UpdateProcedureDto dto)
+        public async Task<ProcedureDto?> UpdateProcedure(int code, ProcedureWriteDto dto)
         {
             var procedure = await _repository.GetByCode(code);
 
@@ -107,7 +107,7 @@ namespace Hms.API.Services
 
             if (dto.Cost.HasValue)
             {
-                procedure.Cost = dto.Cost.Value;
+                procedure.Cost = (float)dto.Cost.Value;
             }
 
             await _repository.Save();

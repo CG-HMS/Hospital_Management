@@ -1,30 +1,30 @@
-﻿using Hms.API.DTOs;
-using Hms.API.Models;
-using AutoMapper;
+﻿//using Hms.API.DTOs;
+//using Hms.API.Models;
+//using AutoMapper;
 
-namespace Hms.API.Mapping
-{
-    public class MappingProfile : Profile
-    {
-        public MappingProfile() {
+//namespace Hms.API.Mapping
+//{
+//    public class MappingProfile : Profile
+//    {
+//        public MappingProfile() {
 
-            CreateMap<Physician, PhysicianDto>();
+//            CreateMap<Physician, PhysicianDto>();
 
-            CreateMap<CreatePhysicianDto, Physician>();
+//            CreateMap<CreatePhysicianDto, Physician>();
 
-            CreateMap<UpdatePhysicianDto, Physician>();
+//            CreateMap<UpdatePhysicianDto, Physician>();
 
-            CreateMap<Department, DepartmentDto>();
+//            CreateMap<Department, DepartmentDto>();
 
-            CreateMap<Procedure, ProcedureDto>();
+//            CreateMap<Procedure, ProcedureDto>();
 
-            CreateMap<Patient, PatientDto>();
+//            CreateMap<Patient, PatientDto>();
 
-            CreateMap<Procedure, ProcedureDto>();
+//            CreateMap<Procedure, ProcedureDto>();
 
-            CreateMap<CreateProcedureDto, Procedure>();
+//            CreateMap<CreateProcedureDto, Procedure>();
 
-            CreateMap<UpdateProcedureDto, Procedure>();
-        }
-    }
-}
+//            CreateMap<UpdateProcedureDto, Procedure>();
+//        }
+//    }
+//}
