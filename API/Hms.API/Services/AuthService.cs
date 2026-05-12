@@ -13,8 +13,6 @@ namespace Hms.API.Services
     {
         private readonly IAuthRepository _repo;
         private readonly IConfiguration _config;
-
-        // IMapper removed — manual mapping is used throughout (no redundant AutoMapper overhead)
         private static readonly string[] AllowedRoles = ["admin", "physician", "nurse", "patient"];
 
         public AuthService(IAuthRepository repo, IConfiguration config)
@@ -23,7 +21,6 @@ namespace Hms.API.Services
             _config = config;
         }
 
-        // ── Login ──────────────────────────────────────────────────────────────
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto)
         {
             var user = await _repo.GetByEmailAsync(dto.Email)
@@ -42,11 +39,9 @@ namespace Hms.API.Services
             return BuildTokenResponse(user);
         }
 
-        // ── Get All Users ──────────────────────────────────────────────────────
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
             => (await _repo.GetAllAsync()).Select(ToDto);
 
-        // ── Get User By Id ─────────────────────────────────────────────────────
         public async Task<UserDto> GetUserByIdAsync(int userId)
         {
             var user = await _repo.GetByIdAsync(userId)
@@ -54,7 +49,6 @@ namespace Hms.API.Services
             return ToDto(user);
         }
 
-        // ── Create User ────────────────────────────────────────────────────────
         public async Task<UserDto> CreateUserAsync(CreateUserDto dto)
         {
             if (await _repo.EmailExistsAsync(dto.Email))
@@ -63,7 +57,6 @@ namespace Hms.API.Services
             if (await _repo.UsernameExistsAsync(dto.Username))
                 throw new ConflictException($"Username '{dto.Username}' is already taken.");
 
-            // Manual mapping — no AutoMapper needed for a straightforward 6-field object
             var user = new User
             {
                 Username = dto.Username.ToLower().Trim(),
@@ -78,7 +71,6 @@ namespace Hms.API.Services
             return ToDto(await _repo.CreateAsync(user));
         }
 
-        // ── Change Password ────────────────────────────────────────────────────
         public async Task ChangePasswordAsync(int userId, ChangePasswordDto dto)
         {
             var user = await _repo.GetByIdAsync(userId)
@@ -92,7 +84,6 @@ namespace Hms.API.Services
             await _repo.UpdateAsync(user);
         }
 
-        // ── Update Role ────────────────────────────────────────────────────────
         public async Task UpdateRoleAsync(int userId, string role)
         {
             var user = await _repo.GetByIdAsync(userId)
@@ -106,7 +97,6 @@ namespace Hms.API.Services
             await _repo.UpdateAsync(user);
         }
 
-        // ── Update Status ──────────────────────────────────────────────────────
         public async Task UpdateStatusAsync(int userId, bool isActive)
         {
             var user = await _repo.GetByIdAsync(userId)
@@ -116,7 +106,6 @@ namespace Hms.API.Services
             await _repo.UpdateAsync(user);
         }
 
-        // ── Private helpers ────────────────────────────────────────────────────
         private LoginResponseDto BuildTokenResponse(User user)
         {
             var jwt = _config.GetSection("JwtSettings");

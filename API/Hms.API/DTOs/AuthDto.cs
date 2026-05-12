@@ -1,6 +1,5 @@
 ﻿namespace Hms.API.DTOs
 {
-    // ── Login ──────────────────────────────────────────────────────────────────
     public class LoginRequestDto
     {
         public string Email { get; set; } = null!;
@@ -15,7 +14,6 @@
         public DateTime ExpiresAt { get; set; }
     }
 
-    // ── User response ──────────────────────────────────────────────────────────
     public class UserDto
     {
         public int UserId { get; set; }
@@ -27,7 +25,6 @@
         public DateTime CreatedAt { get; set; }
     }
 
-    // ── Create user (POST only — UserId is never accepted from client) ─────────
     public class CreateUserDto
     {
         public string Username { get; set; } = null!;
@@ -37,13 +34,10 @@
         public int? RefId { get; set; }
     }
 
-    // ── Change password (PATCH /change-password only) ─────────────────────────
     public class ChangePasswordDto
     {
         public string CurrentPassword { get; set; } = null!;
         public string NewPassword { get; set; } = null!;
     }
 
-    // UpdateRoleDto   → REMOVED  — controller uses [FromBody] string role
-    // UpdateStatusDto → REMOVED  — controller uses [FromBody] bool isActive
 }

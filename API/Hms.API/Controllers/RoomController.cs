@@ -23,7 +23,6 @@ namespace Hms.API.Controllers
         }
 
         // ── GET /api/rooms/available  — ANY ROLE ──────────────────────────────
-        // Must be declared before /{id} to avoid ASP.NET Core routing conflict
         [HttpGet("available")]
         public async Task<IActionResult> GetAvailable()
         {
@@ -64,8 +63,6 @@ namespace Hms.API.Controllers
         }
 
         // ── POST /api/rooms/{roomNumber}  — ADMIN ─────────────────────────────
-        // RoomNumber is in the route — the client cannot set it inside the body.
-        // Body only contains the editable fields (RoomWriteDto).
         [HttpPost("{roomNumber:int}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create(int roomNumber, [FromBody] RoomWriteDto dto)
@@ -77,7 +74,6 @@ namespace Hms.API.Controllers
         }
 
         // ── PUT /api/rooms/{id}  — ADMIN ──────────────────────────────────────
-        // ID comes from the route — RoomNumber cannot be changed via the body.
         [HttpPut("{id:int}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(int id, [FromBody] RoomWriteDto dto)
@@ -89,7 +85,6 @@ namespace Hms.API.Controllers
         }
 
         // ── PATCH /api/rooms/{id}/availability  — ADMIN ───────────────────────
-        // Body: true = mark unavailable | false = mark available (plain JSON bool)
         [HttpPatch("{id:int}/availability")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateAvailability(int id, [FromBody] bool unavailable)
@@ -99,7 +94,5 @@ namespace Hms.API.Controllers
             await _roomService.UpdateAvailabilityAsync(id, unavailable);
             return Ok(new { message = $"Room {id} marked as {(unavailable ? "unavailable" : "available")}." });
         }
-
-        // Delete → fully removed.
     }
 }

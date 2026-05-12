@@ -3,7 +3,6 @@ using Hms.API.DTOs;
 
 namespace Hms.API.Validators
 {
-    // ── Auth validators ────────────────────────────────────────────────────────
 
     public class LoginRequestDtoValidator : AbstractValidator<LoginRequestDto>
     {
@@ -61,16 +60,6 @@ namespace Hms.API.Validators
                 .WithMessage("New password must be different from current password.");
         }
     }
-
-    // UpdateRoleDtoValidator        → REMOVED (DTO removed, role is bare string param)
-    // UpdateStatusDtoValidator      → REMOVED (bool is a value type — NotNull() on bool is always true, dead code)
-
-    // ── Room validators ────────────────────────────────────────────────────────
-
-    // RoomDtoValidator              → REMOVED (RoomDto is a response DTO — never validated as input)
-    // CreateRoomDtoValidator        → REMOVED (merged into RoomWriteDtoValidator)
-    // UpdateRoomDtoValidator        → REMOVED (merged into RoomWriteDtoValidator)
-    // UpdateAvailabilityDtoValidator → REMOVED (bool is a value type — NotNull() is dead code, DTO removed)
 
     public class RoomWriteDtoValidator : AbstractValidator<RoomWriteDto>
     {

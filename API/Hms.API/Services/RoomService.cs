@@ -38,16 +38,15 @@ namespace Hms.API.Services
             if (await _repo.ExistsAsync(roomNumber))
                 throw new ConflictException($"Room {roomNumber} already exists.");
 
-            // Auto-creates the Block row if it doesn't exist yet
             await _repo.EnsureBlockExistsAsync(dto.BlockFloor, dto.BlockCode);
 
             var room = new Room
             {
-                RoomNumber = roomNumber,           // from route — client cannot set it in body
+                RoomNumber = roomNumber,       
                 RoomType = dto.RoomType,
                 BlockFloor = dto.BlockFloor,
                 BlockCode = dto.BlockCode,
-                Unavailable = false                 // always starts available
+                Unavailable = false 
             };
 
             return ToDto(await _repo.CreateAsync(room));
@@ -61,7 +60,6 @@ namespace Hms.API.Services
             if (!await _repo.BlockExistsAsync(dto.BlockFloor, dto.BlockCode))
                 throw new NotFoundException($"Block (Floor={dto.BlockFloor}, Code={dto.BlockCode}) does not exist.");
 
-            // Manual field update — only editable fields, RoomNumber (PK) is never touched
             room.RoomType = dto.RoomType;
             room.BlockFloor = dto.BlockFloor;
             room.BlockCode = dto.BlockCode;

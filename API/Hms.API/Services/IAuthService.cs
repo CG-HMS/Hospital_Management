@@ -11,6 +11,5 @@ namespace Hms.API.Services
         Task ChangePasswordAsync(int userId, ChangePasswordDto dto);
         Task UpdateRoleAsync(int userId, string role);
         Task UpdateStatusAsync(int userId, bool isActive);
-        // DeleteUserAsync → REMOVED — delete endpoint not exposed
     }
 }
