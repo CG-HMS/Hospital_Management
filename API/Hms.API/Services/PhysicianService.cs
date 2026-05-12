@@ -29,7 +29,7 @@ namespace Hms.API.Services
             {
                 Name = dto.Name,
                 Position = dto.Position,
-                Ssn = dto.Ssn,
+                Ssn = dto.Ssn ?? 0,
                 EmployeeId = nextId
             };
 
@@ -120,6 +120,43 @@ namespace Hms.API.Services
         {
             return await _repository.GetProceduresByPhysician(physicianId);
         }
+        private static PhysicianDto MapToDto(Physician p)
+        {
+            return new PhysicianDto
+            {
+                EmployeeId = p.EmployeeId,
+                Name = p.Name,
+                Position = p.Position
+            };
+        }
 
+        public async Task<PhysicianDto> UpdatePhysician(int id, PhysicianWriteDto dto)
+        {
+            var physician = await _repository.GetById(id);
+
+            if (physician == null)
+            {
+                throw new NotFoundException(
+                    "Physician not found");
+            }
+
+            if (dto.Name != null)
+            {
+                physician.Name = dto.Name;
+            }
+
+            if (dto.Position != null)
+            {
+                physician.Position = dto.Position;
+            }
+
+            if (dto.Ssn.HasValue)
+            {
+                physician.Ssn = dto.Ssn.Value;
+            }
+            await _repository.Save( );
+
+            return MapToDto(physician);
+        }
     }
 }

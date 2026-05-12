@@ -5,7 +5,7 @@ namespace Hms.API.Validator
 {
     public static class DtoValidators
     {
-        public class CreatePhysicianDtoValidator : AbstractValidator<CreatePhysicianDto>
+        public class CreatePhysicianDtoValidator : AbstractValidator<PhysicianWriteDto>
         {
             public CreatePhysicianDtoValidator()
             {
@@ -20,7 +20,7 @@ namespace Hms.API.Validator
                 RuleFor(x => x.Ssn)
                     .GreaterThan(0);
             }
-            public class CreateProcedureDtoValidator : AbstractValidator<CreateProcedureDto>
+            public class CreateProcedureDtoValidator : AbstractValidator<ProcedureWriteDto>
             {
                 public CreateProcedureDtoValidator()
                 {
@@ -32,7 +32,7 @@ namespace Hms.API.Validator
                         .GreaterThan(0);
                 }
             }
-            public class UpdatePhysicianDtoValidator : AbstractValidator<UpdatePhysicianDto>
+            public class UpdatePhysicianDtoValidator : AbstractValidator<PhysicianWriteDto>
             {
                 public UpdatePhysicianDtoValidator()
                 {
@@ -49,7 +49,7 @@ namespace Hms.API.Validator
                         .When(x => x.Ssn.HasValue);
                 }
             }
-            public class UpdateProcedureDtoValidator : AbstractValidator<UpdateProcedureDto>
+            public class UpdateProcedureDtoValidator : AbstractValidator<ProcedureWriteDto>
             {
                 public UpdateProcedureDtoValidator()
                 {
