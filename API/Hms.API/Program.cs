@@ -1,18 +1,22 @@
 using FluentValidation;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using FluentValidation.AspNetCore;
 using Hms.API.Data;
+using Hms.API.DTOs.Medication;
+using Hms.API.DTOs.Patient;
+using Hms.API.Mapping;
 using Hms.API.Middleware;
 using Hms.API.Repository;
+using Hms.API.Repository;
+using Hms.API.Repository.Interfaces;
 using Hms.API.Services;
+using Hms.API.Services.Interfaces;
+using Hms.API.Validator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using Hms.API.Repository;
-using Hms.API.Validator;
 
 namespace Hms.API
 {
@@ -110,12 +114,6 @@ namespace Hms.API
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<DtoValidators.CreatePhysicianDtoValidator>();
 
-            builder.Services.AddDbContext<MyAppDbContext>(options =>
-                options.UseSqlServer(
-                    builder.Configuration.GetConnectionString("DefaultConnection")
-                )
-            );
-
             builder.Services.AddScoped<IPatientRepository, PatientRepository>();
             builder.Services.AddScoped<IMedicationRepository, MedicationRepository>();
 
@@ -128,8 +126,8 @@ namespace Hms.API
 
             builder.Services.AddScoped<IValidator<MedicationRequestDto>, MedicationValidator>();
 
-            
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            builder.Services.AddAutoMapper(typeof(MedicationProfile));
 
             var app = builder.Build();
 

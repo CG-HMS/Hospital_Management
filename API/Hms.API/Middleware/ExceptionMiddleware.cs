@@ -1,38 +1,42 @@
 ﻿using System.Net;
 using System.Text.Json;
+using FluentValidation;
 using Hms.API.Exceptions;
-using System.Text.Json;
 
 namespace Hms.API.Middleware
 {
-public class ExceptionMiddleware
-{
-    private readonly RequestDelegate _next;
+    public class ExceptionMiddleware
+    {
+        private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionMiddleware> _logger;
 
-        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
-    {
-        _next = next;
+        public ExceptionMiddleware(
+            RequestDelegate next,
+            ILogger<ExceptionMiddleware> logger)
+        {
+            _next = next;
             _logger = logger;
-    }
-
-    public async Task InvokeAsync(HttpContext context)
-    {
-        try
-        {
-            await _next(context);
         }
-            catch (Exception ex)
+
+        public async Task InvokeAsync(HttpContext context)
         {
+            try
+            {
+                await _next(context);
+            }
+            catch (Exception ex)
+            {
                 _logger.LogError(ex, "Exception: {Message}", ex.Message);
+
                 await HandleExceptionAsync(context, ex);
             }
         }
 
-        private static async Task HandleExceptionAsync(HttpContext context, Exception ex)
+        private static async Task HandleExceptionAsync(
+            HttpContext context,
+            Exception ex)
         {
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = ex.StatusCode;
 
             int statusCode;
             string message;
@@ -47,21 +51,23 @@ public class ExceptionMiddleware
                     break;
 
                 case FluentValidation.ValidationException valEx:
-                    statusCode = 400;
+                    statusCode = (int)HttpStatusCode.BadRequest;
                     message = "One or more validation errors occurred.";
-                    details = string.Join(" | ", valEx.Errors.Select(e => e.ErrorMessage));
+                    details = string.Join(
+                        " | ",
+                        valEx.Errors.Select(e => e.ErrorMessage));
                     break;
 
                 default:
-                    statusCode = 500;
-                    message = "An unexpected error occurred. Please try again later.";
-                    details = "InternalServerError";
+                    statusCode = (int)HttpStatusCode.InternalServerError;
+                    message = "An unexpected error occurred.";
+                    details = ex.Message;
                     break;
-        }
+            }
 
             context.Response.StatusCode = statusCode;
 
-            var body = new
+            var response = new
             {
                 statusCode,
                 message,
@@ -69,9 +75,14 @@ public class ExceptionMiddleware
                 timestamp = DateTime.UtcNow
             };
 
-            await context.Response.WriteAsync(
-                JsonSerializer.Serialize(body,
-                    new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            var json = JsonSerializer.Serialize(
+                response,
+                new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+
+            await context.Response.WriteAsync(json);
         }
     }
 }
