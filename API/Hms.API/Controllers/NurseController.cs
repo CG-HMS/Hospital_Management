@@ -2,6 +2,7 @@
 using Hms.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Hms.API.Controllers
 {
@@ -18,6 +19,7 @@ namespace Hms.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "admin, physician")]
         public async Task<ActionResult<List<NurseDto>>> GetAll()
         {
             var nurses = await _service.GetAllAsync();
@@ -25,6 +27,7 @@ namespace Hms.API.Controllers
         }
 
         [HttpGet("{id:int}")]
+
         public async Task<ActionResult<NurseDto>> GetById(int id)
         {
             var nurse = await _service.GetByIdAsync(id);
@@ -34,6 +37,36 @@ namespace Hms.API.Controllers
             }
 
             return Ok(nurse);
+        }
+
+        [Authorize(Roles = "nurse")]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userIdClaim = User.FindFirst("refId");
+
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            int userId = int.Parse(userIdClaim.Value);
+
+            //// TEMP DEBUG
+            //return Ok(new
+            //{
+            //    UserId = userId,
+            //    Claims = User.Claims.Select(c => new { c.Type, c.Value })
+            //});
+            var nurse = await _service.GetByIdAsync(userId);
+
+            if (nurse == null)
+            {
+                return NotFound("Nurse profile not found.");
+            }
+
+            return Ok(nurse);
+            
         }
 
         [HttpPost]

@@ -71,4 +71,27 @@ public class PatientController : ControllerBase
             Message = "Patient deleted successfully"
         });
     }
+
+    [Authorize(Roles = "patient")]
+    [HttpGet("profile")]
+    public async Task<IActionResult> GetProfile()
+    {
+        var userIdClaim = User.FindFirst("refId");
+
+        if (userIdClaim == null)
+        {
+            return Unauthorized("User ID not found in token.");
+        }
+
+        int ssn = int.Parse(userIdClaim.Value);
+
+        var patient = await _service.GetPatientByIdAsync(ssn);
+
+        if (patient == null)
+        {
+            return NotFound("Patient profile not found.");
+        }
+
+        return Ok(patient);
+    }
 }

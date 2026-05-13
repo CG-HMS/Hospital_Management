@@ -71,27 +71,27 @@ public class PrescriptionController : ControllerBase
         return Ok(prescriptions);
     }
 
-    [HttpGet("by-date-range")]
-    [Authorize(Roles = "admin,physician")]
-    public async Task<ActionResult<IEnumerable<PrescriptionDTO>>> GetByDateRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
-    {
-        if (startDate > endDate)
-            throw new BadRequestException("Start date must be earlier than end date");
+    //[HttpGet("by-date-range")]
+    //[Authorize(Roles = "admin,physician")]
+    //public async Task<ActionResult<IEnumerable<PrescriptionDTO>>> GetByDateRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+    //{
+    //    if (startDate > endDate)
+    //        throw new BadRequestException("Start date must be earlier than end date");
 
-        var prescriptions = await _prescriptionService.GetPrescriptionsByDateRangeAsync(startDate, endDate);
-        return Ok(prescriptions);
-    }
+    //    var prescriptions = await _prescriptionService.GetPrescriptionsByDateRangeAsync(startDate, endDate);
+    //    return Ok(prescriptions);
+    //}
 
-    [HttpGet("recent")]
-    [Authorize(Roles = "admin,physician")]
-    public async Task<ActionResult<IEnumerable<PrescriptionDTO>>> GetRecent([FromQuery] int days = 7)
-    {
-        if (days <= 0)
-            throw new BadRequestException("Days must be greater than 0");
+    //[HttpGet("recent")]
+    //[Authorize(Roles = "admin,physician")]
+    //public async Task<ActionResult<IEnumerable<PrescriptionDTO>>> GetRecent([FromQuery] int days = 7)
+    //{
+    //    if (days <= 0)
+    //        throw new BadRequestException("Days must be greater than 0");
 
-        var prescriptions = await _prescriptionService.GetRecentPrescriptionsAsync(days);
-        return Ok(prescriptions);
-    }
+    //    var prescriptions = await _prescriptionService.GetRecentPrescriptionsAsync(days);
+    //    return Ok(prescriptions);
+    //}
 
     [HttpPost]
     [Authorize(Roles = "physician")]

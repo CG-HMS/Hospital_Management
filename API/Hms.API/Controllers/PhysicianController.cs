@@ -40,8 +40,7 @@ namespace Hms.API.Controllers
 
         [HttpPost]
         [Authorize(Roles = "admin")]
-        public async
-    Task<IActionResult> AddPhysician(PhysicianWriteDto dto)
+        public async Task<IActionResult> AddPhysician(PhysicianWriteDto dto)
         {
             var physician = await _service.AddPhysician(dto);
 
@@ -86,34 +85,34 @@ namespace Hms.API.Controllers
             return Ok(departments);
         }
 
-        [HttpGet("{id}/procedures")]
-        public async Task<IActionResult> GetProcedures(int id)
-        {
-            if (id <= 0)
-            {
-                throw new BadRequestException("Physician ID must be positive.");
-            }
-            var procedures = await _service.GetProceduresByPhysician(id);
+        //[HttpGet("{id}/procedures")]
+        //public async Task<IActionResult> GetProcedures(int id)
+        //{
+        //    if (id <= 0)
+        //    {
+        //        throw new BadRequestException("Physician ID must be positive.");
+        //    }
+        //    var procedures = await _service.GetProceduresByPhysician(id);
 
-            return Ok(procedures);
-        }
+        //    return Ok(procedures);
+        //}
 
-        [HttpPost("{id}/departments")]
-        [Authorize(Roles = "admin")]
-        public async Task<IActionResult> AssignDepartment(int id, AssignDepartmentDto dto)
-        {
-            if (id <= 0)
-            {
-                throw new BadRequestException("Physician ID must be positive.");
-            }
-            if (dto.DepartmentId <= 0)
-            {
-                throw new BadRequestException("Department ID must be positive.");
-            }
-            await _service.AssignDepartment(id, dto);
+        //[HttpPost("{id}/departments")]
+        //[Authorize(Roles = "admin")]
+        //public async Task<IActionResult> AssignDepartment(int id, AssignDepartmentDto dto)
+        //{
+        //    if (id <= 0)
+        //    {
+        //        throw new BadRequestException("Physician ID must be positive.");
+        //    }
+        //    if (dto.DepartmentId <= 0)
+        //    {
+        //        throw new BadRequestException("Department ID must be positive.");
+        //    }
+        //    await _service.AssignDepartment(id, dto);
 
-            return Ok("Department assigned successfully");
-        }
+        //    return Ok("Department assigned successfully");
+        //}
 
         [HttpGet("{id}/appointments")]
         [Authorize(Roles = "admin,physician")]
@@ -139,6 +138,29 @@ namespace Hms.API.Controllers
             var patients = await _service.GetPatientsByPhysician(id);
 
             return Ok(patients);
+        }
+
+        [HttpGet("profile")]
+        [Authorize(Roles = "physician")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userIdClaim = User.FindFirst("refId");
+
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            int physicianId = int.Parse(userIdClaim.Value);
+
+            var physician = await _service.GetPhysicianById(physicianId);
+
+            if (physician == null)
+            {
+                return NotFound("Physician profile not found.");
+            }
+
+            return Ok(physician);
         }
     }
 }

@@ -72,6 +72,7 @@ namespace Hms.API.Controllers
 
             return Ok("Procedure deleted successfully");
         }
+
         [HttpGet("{code}/physicians")]
         public async Task<IActionResult> GetPhysiciansByProcedure(int code)
         {
