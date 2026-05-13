@@ -129,6 +129,27 @@ namespace Hms.API
 
             builder.Services.AddAutoMapper(typeof(MedicationProfile));
 
+            // Add AutoMapper
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            // Add FluentValidation
+            builder.Services.AddFluentValidationAutoValidation();
+            builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
+            // Add DbContext
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
+                "Server=.;Database=HospitalManagementSystem;Trusted_Connection=true;Encrypt=false;";
+            builder.Services.AddDbContext<MyAppDbContext>(options =>
+                options.UseSqlServer(connectionString));
+
+            // Add Repositories
+            builder.Services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
+            builder.Services.AddScoped<IStayRepository, StayRepository>();
+
+            // Add Services
+            builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+            builder.Services.AddScoped<IStayService, StayService>();
+
             var app = builder.Build();
 
             // ── Middleware Pipeline ────────────────────────────────────────────
