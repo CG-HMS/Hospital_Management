@@ -100,6 +100,16 @@ namespace Hms.API
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<NurseDtoValidator>();
 
+            // Repositories & Services
+            builder.Services.AddScoped<IPhysicianRepository, PhysicianRepository>();
+            builder.Services.AddScoped<IProcedureRepository, ProcedureRepository>();
+            builder.Services.AddScoped<IPhysicianService, PhysicianService>();
+            builder.Services.AddScoped<IProcedureService, ProcedureService>();
+
+            // FluentValidation
+            builder.Services.AddFluentValidationAutoValidation();
+            builder.Services.AddValidatorsFromAssemblyContaining<DtoValidators.CreatePhysicianDtoValidator>();
+
             var app = builder.Build();
 
             // ── Middleware Pipeline ────────────────────────────────────────────
