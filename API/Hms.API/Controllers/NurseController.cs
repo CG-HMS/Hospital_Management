@@ -1,11 +1,13 @@
 ﻿using Hms.API.DTOs;
 using Hms.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hms.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class NurseController : ControllerBase
     {
         private readonly INurseService _service;
@@ -35,6 +37,7 @@ namespace Hms.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<NurseDto>> Create(NurseCreateDto dto)
         {
             try
@@ -49,6 +52,7 @@ namespace Hms.API.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(int id, NurseUpdateDto dto)
         {
             try
@@ -67,6 +71,7 @@ namespace Hms.API.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try
