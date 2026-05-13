@@ -1,28 +1,29 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Hms.API.Exceptions;
 using System.Text.Json;
 
 namespace Hms.API.Middleware
 {
-    public class ExceptionMiddleware
-    {
-        private readonly RequestDelegate _next;
+public class ExceptionMiddleware
+{
+    private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionMiddleware> _logger;
 
         public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
-        {
-            _next = next;
+    {
+        _next = next;
             _logger = logger;
-        }
+    }
 
-        public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
         {
-            try
-            {
-                await _next(context);
-            }
+            await _next(context);
+        }
             catch (Exception ex)
-            {
+        {
                 _logger.LogError(ex, "Exception: {Message}", ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
@@ -31,6 +32,7 @@ namespace Hms.API.Middleware
         private static async Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
             context.Response.ContentType = "application/json";
+            context.Response.StatusCode = ex.StatusCode;
 
             int statusCode;
             string message;
@@ -55,7 +57,7 @@ namespace Hms.API.Middleware
                     message = "An unexpected error occurred. Please try again later.";
                     details = "InternalServerError";
                     break;
-            }
+        }
 
             context.Response.StatusCode = statusCode;
 

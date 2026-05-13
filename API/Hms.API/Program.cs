@@ -110,6 +110,27 @@ namespace Hms.API
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<DtoValidators.CreatePhysicianDtoValidator>();
 
+            builder.Services.AddDbContext<MyAppDbContext>(options =>
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection")
+                )
+            );
+
+            builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+            builder.Services.AddScoped<IMedicationRepository, MedicationRepository>();
+
+            builder.Services.AddScoped<IPatientService, PatientService>();
+            builder.Services.AddScoped<IMedicationService, MedicationService>();
+
+            builder.Services.AddFluentValidationAutoValidation();
+
+            builder.Services.AddScoped<IValidator<PatientRequestDto>, PatientValidator>();
+
+            builder.Services.AddScoped<IValidator<MedicationRequestDto>, MedicationValidator>();
+
+            
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             var app = builder.Build();
 
             // ── Middleware Pipeline ────────────────────────────────────────────
