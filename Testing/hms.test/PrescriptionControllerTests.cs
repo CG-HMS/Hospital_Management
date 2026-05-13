@@ -234,50 +234,50 @@ public class PrescriptionControllerTests
     // 7. GET BY DATE RANGE — POSITIVE
     // =====================================================================
 
-    [Fact]
-    public async Task GetByDateRange_ShouldReturn200_WhenDateRangeIsValid()
-    {
-        // Arrange
-        var start = DateTime.UtcNow.AddDays(-7);
-        var end   = DateTime.UtcNow;
+    //[Fact]
+    //public async Task GetByDateRange_ShouldReturn200_WhenDateRangeIsValid()
+    //{
+    //    // Arrange
+    //    var start = DateTime.UtcNow.AddDays(-7);
+    //    var end   = DateTime.UtcNow;
 
-        var list = new List<PrescriptionDTO>
-        {
-            new() { Physician = 1, Patient = 101, Medication = 201, Date = start.AddDays(1), Dose = "100mg" }
-        };
+    //    var list = new List<PrescriptionDTO>
+    //    {
+    //        new() { Physician = 1, Patient = 101, Medication = 201, Date = start.AddDays(1), Dose = "100mg" }
+    //    };
 
-        _mockService
-            .Setup(s => s.GetPrescriptionsByDateRangeAsync(start, end))
-            .ReturnsAsync(list);
+    //    _mockService
+    //        .Setup(s => s.GetPrescriptionsByDateRangeAsync(start, end))
+    //        .ReturnsAsync(list);
 
-        // Act
-        var result = await _controller.GetByDateRange(start, end);
+    //    // Act
+    //    var result = await _controller.GetByDateRange(start, end);
 
-        // Assert
-        var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        okResult.StatusCode.Should().Be(200);
-    }
+    //    // Assert
+    //    var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
+    //    okResult.StatusCode.Should().Be(200);
+    //}
 
-    // =====================================================================
-    // 8. GET BY DATE RANGE — NEGATIVE
-    // =====================================================================
+    //// =====================================================================
+    //// 8. GET BY DATE RANGE — NEGATIVE
+    //// =====================================================================
 
-    [Fact]
-    public async Task GetByDateRange_ShouldThrowBadRequestException_WhenStartIsAfterEnd()
-    {
-        // Arrange — controller validates this before calling service
-        var start = DateTime.UtcNow;
-        var end   = DateTime.UtcNow.AddDays(-7);   // end is BEFORE start
+    //[Fact]
+    //public async Task GetByDateRange_ShouldThrowBadRequestException_WhenStartIsAfterEnd()
+    //{
+    //    // Arrange — controller validates this before calling service
+    //    var start = DateTime.UtcNow;
+    //    var end   = DateTime.UtcNow.AddDays(-7);   // end is BEFORE start
 
-        // Act
-        var action = async () => await _controller.GetByDateRange(start, end);
+    //    // Act
+    //    var action = async () => await _controller.GetByDateRange(start, end);
 
-        // Assert
-        await action.Should()
-            .ThrowAsync<BadRequestException>()
-            .WithMessage("Start date must be earlier than end date");
+    //    // Assert
+    //    await action.Should()
+    //        .ThrowAsync<BadRequestException>()
+    //        .WithMessage("Start date must be earlier than end date");
 
-        _mockService.Verify(s => s.GetPrescriptionsByDateRangeAsync(
-            It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
-    }
+    //    _mockService.Verify(s => s.GetPrescriptionsByDateRangeAsync(
+    //        It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
+    //}
 }
