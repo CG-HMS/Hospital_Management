@@ -5,5 +5,7 @@
   <Folder Name="/MVC/">
     <Project Path="MVC/Hms.MVC/Hms.MVC.csproj" />
   </Folder>
-  <Folder Name="/Testing/" />
+  <Folder Name="/Testing/">
+    <Project Path="Testing/hms.test/hms.test.csproj" />
+  </Folder>
 </Solution>
