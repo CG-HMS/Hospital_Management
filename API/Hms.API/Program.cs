@@ -1,18 +1,11 @@
 using FluentValidation;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using FluentValidation.AspNetCore;
 using Hms.API.Data;
-using Hms.API.DTOs.Medication;
-using Hms.API.DTOs.Patient;
-using Hms.API.Mapping;
 using Hms.API.Middleware;
-using Hms.API.Repository;
 using Hms.API.Repository;
 using Hms.API.Repository.Interfaces;
 using Hms.API.Services;
 using Hms.API.Services.Interfaces;
-using Hms.API.Validator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -53,17 +46,36 @@ namespace Hms.API
 
             builder.Services.AddAuthorization();
 
-            // ── FluentValidation ───────────────────────────────────────────────
+            // ── FluentValidation ── one call scans every validator in the assembly
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+            // ── AutoMapper ── one call scans every profile in the assembly
+            builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
             // ── Repositories ───────────────────────────────────────────────────
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
             builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+            builder.Services.AddScoped<INurseRepository, NurseRepository>();
+            builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+            builder.Services.AddScoped<IPhysicianRepository, PhysicianRepository>();
+            builder.Services.AddScoped<IProcedureRepository, ProcedureRepository>();
+            builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+            builder.Services.AddScoped<IMedicationRepository, MedicationRepository>();
+            builder.Services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
+            builder.Services.AddScoped<IStayRepository, StayRepository>();
 
             // ── Services ───────────────────────────────────────────────────────
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IRoomService, RoomService>();
+            builder.Services.AddScoped<INurseService, NurseService>();
+            builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+            builder.Services.AddScoped<IPhysicianService, PhysicianService>();
+            builder.Services.AddScoped<IProcedureService, ProcedureService>();
+            builder.Services.AddScoped<IPatientService, PatientService>();
+            builder.Services.AddScoped<IMedicationService, MedicationService>();
+            builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+            builder.Services.AddScoped<IStayService, StayService>();
 
             // ── Controllers + Swagger ──────────────────────────────────────────
             builder.Services.AddControllers();
@@ -77,7 +89,7 @@ namespace Hms.API
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                    Description = "Enter: Bearer {token}"
+                    Description = "Enter: Bearer {your-token}"
                 });
 
                 options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
@@ -96,64 +108,11 @@ namespace Hms.API
                 });
             });
 
-            builder.Services.AddDbContext<Data.MyAppDbContext>();
-            builder.Services.AddScoped<INurseRepository, NurseRepository>();
-            builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
-            builder.Services.AddScoped<Services.INurseService, Services.NurseService>();
-            builder.Services.AddScoped<Services.IAppointmentService, Services.AppointmentService>();
-            builder.Services.AddFluentValidationAutoValidation();
-            builder.Services.AddValidatorsFromAssemblyContaining<NurseDtoValidator>();
-
-            // Repositories & Services
-            builder.Services.AddScoped<IPhysicianRepository, PhysicianRepository>();
-            builder.Services.AddScoped<IProcedureRepository, ProcedureRepository>();
-            builder.Services.AddScoped<IPhysicianService, PhysicianService>();
-            builder.Services.AddScoped<IProcedureService, ProcedureService>();
-
-            // FluentValidation
-            builder.Services.AddFluentValidationAutoValidation();
-            builder.Services.AddValidatorsFromAssemblyContaining<DtoValidators.CreatePhysicianDtoValidator>();
-
-            builder.Services.AddScoped<IPatientRepository, PatientRepository>();
-            builder.Services.AddScoped<IMedicationRepository, MedicationRepository>();
-
-            builder.Services.AddScoped<IPatientService, PatientService>();
-            builder.Services.AddScoped<IMedicationService, MedicationService>();
-
-            builder.Services.AddFluentValidationAutoValidation();
-
-            builder.Services.AddScoped<IValidator<PatientRequestDto>, PatientValidator>();
-
-            builder.Services.AddScoped<IValidator<MedicationRequestDto>, MedicationValidator>();
-
-
-            builder.Services.AddAutoMapper(typeof(MedicationProfile));
-
-            // Add AutoMapper
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-            // Add FluentValidation
-            builder.Services.AddFluentValidationAutoValidation();
-            builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
-
-            // Add DbContext
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
-                "Server=.;Database=HospitalManagementSystem;Trusted_Connection=true;Encrypt=false;";
-            builder.Services.AddDbContext<MyAppDbContext>(options =>
-                options.UseSqlServer(connectionString));
-
-            // Add Repositories
-            builder.Services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
-            builder.Services.AddScoped<IStayRepository, StayRepository>();
-
-            // Add Services
-            builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
-            builder.Services.AddScoped<IStayService, StayService>();
-
             var app = builder.Build();
 
-            // ── Middleware Pipeline ────────────────────────────────────────────
-            app.UseMiddleware<ExceptionMiddleware>(); // ← must be first
+            // ── Middleware Pipeline (ORDER MATTERS) ────────────────────────────
+            app.UseMiddleware<RequestLoggingMiddleware>(); 
+            app.UseMiddleware<ExceptionMiddleware>();    
 
             if (app.Environment.IsDevelopment())
             {
@@ -161,11 +120,9 @@ namespace Hms.API
                 app.UseSwaggerUI();
             }
 
-            app.UseMiddleware<Middleware.ExceptionHandlingMiddleware>();
-
             app.UseHttpsRedirection();
-            app.UseAuthentication(); // ← must come before UseAuthorization
-            app.UseAuthorization();
+            app.UseAuthentication(); 
+            app.UseAuthorization();   
             app.MapControllers();
 
             app.Run();

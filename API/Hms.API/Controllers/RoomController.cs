@@ -8,7 +8,7 @@ namespace Hms.API.Controllers
 {
     [ApiController]
     [Route("api/rooms")]
-    //[Authorize]
+    [Authorize]
     public class RoomController : ControllerBase
     {
         private readonly IRoomService _roomService;

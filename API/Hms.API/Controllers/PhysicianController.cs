@@ -2,11 +2,13 @@
 using Hms.API.Services;
 using Hms.API.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Hms.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PhysicianController : ControllerBase
     {
 
@@ -32,13 +34,14 @@ namespace Hms.API.Controllers
                 throw new BadRequestException("Physician ID must be positive.");
             }
             var physician = await _service.GetPhysicianById(id);
-            
+
             return Ok(physician);
         }
 
         [HttpPost]
-        public async 
-Task<IActionResult> AddPhysician(PhysicianWriteDto dto)
+        [Authorize(Roles = "admin")]
+        public async
+    Task<IActionResult> AddPhysician(PhysicianWriteDto dto)
         {
             var physician = await _service.AddPhysician(dto);
 
@@ -46,6 +49,7 @@ Task<IActionResult> AddPhysician(PhysicianWriteDto dto)
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdatePhysician(int id, PhysicianWriteDto dto)
         {
             if (id <= 0)
@@ -53,11 +57,12 @@ Task<IActionResult> AddPhysician(PhysicianWriteDto dto)
                 throw new BadRequestException("Physician ID must be positive.");
             }
             var physician = await _service.UpdatePhysician(id, dto);
-            
+
             return Ok(physician);
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeletePhysician(int id)
         {
             if (id <= 0)
@@ -65,7 +70,7 @@ Task<IActionResult> AddPhysician(PhysicianWriteDto dto)
                 throw new BadRequestException("Physician ID must be positive.");
             }
             await _service.DeletePhysician(id);
-            
+
             return Ok("Physician deleted successfully");
         }
 
@@ -94,6 +99,7 @@ Task<IActionResult> AddPhysician(PhysicianWriteDto dto)
         }
 
         [HttpPost("{id}/departments")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> AssignDepartment(int id, AssignDepartmentDto dto)
         {
             if (id <= 0)
@@ -108,8 +114,9 @@ Task<IActionResult> AddPhysician(PhysicianWriteDto dto)
 
             return Ok("Department assigned successfully");
         }
-        
+
         [HttpGet("{id}/appointments")]
+        [Authorize(Roles = "admin,physician")]
         public async Task<IActionResult> GetAppointments(int id)
         {
             if (id <= 0)
@@ -122,6 +129,7 @@ Task<IActionResult> AddPhysician(PhysicianWriteDto dto)
         }
 
         [HttpGet("{id}/patients")]
+        [Authorize(Roles = "admin,physician")]
         public async Task<IActionResult> GetPatients(int id)
         {
             if (id <= 0)

@@ -2,12 +2,14 @@
 using Hms.API.DTOs;
 using Hms.API.Exceptions;
 using Hms.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hms.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class StayController : ControllerBase
 {
     private readonly IStayService _stayService;
@@ -18,6 +20,7 @@ public class StayController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "admin,physician,nurse")]
     public async Task<ActionResult<IEnumerable<StayDTO>>> GetAll()
     {
         var stays = await _stayService.GetAllStaysAsync();
@@ -25,6 +28,7 @@ public class StayController : ControllerBase
     }
 
     [HttpGet("{stayId}")]
+    [Authorize(Roles = "admin,physician,nurse,patient")]
     public async Task<ActionResult<StayDetailDTO>> GetById(int stayId)
     {
         var stay = await _stayService.GetStayByIdAsync(stayId);
@@ -35,6 +39,7 @@ public class StayController : ControllerBase
     }
 
     [HttpGet("by-patient/{patientId}")]
+    [Authorize(Roles = "admin,physician,nurse,patient")]
     public async Task<ActionResult<IEnumerable<StayDTO>>> GetByPatient(int patientId)
     {
         var stays = await _stayService.GetStaysByPatientAsync(patientId);
@@ -42,6 +47,7 @@ public class StayController : ControllerBase
     }
 
     [HttpGet("by-room/{roomId}")]
+    [Authorize(Roles = "admin,nurse")]
     public async Task<ActionResult<IEnumerable<StayDTO>>> GetByRoom(int roomId)
     {
         var stays = await _stayService.GetStaysByRoomAsync(roomId);
@@ -49,6 +55,7 @@ public class StayController : ControllerBase
     }
 
     [HttpGet("active")]
+    [Authorize(Roles = "admin,physician,nurse")]
     public async Task<ActionResult<IEnumerable<StayDTO>>> GetActiveStays()
     {
         var stays = await _stayService.GetActiveStaysAsync();
@@ -56,6 +63,7 @@ public class StayController : ControllerBase
     }
 
     [HttpGet("by-date-range")]
+    [Authorize(Roles = "admin,physician")]
     public async Task<ActionResult<IEnumerable<StayDTO>>> GetByDateRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
     {
         if (startDate > endDate)
@@ -66,6 +74,7 @@ public class StayController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "admin,physician")]
     public async Task<ActionResult<StayDTO>> Create([FromBody] CreateStayDTO createStayDto)
     {
         var stay = await _stayService.CreateStayAsync(createStayDto);
@@ -73,6 +82,7 @@ public class StayController : ControllerBase
     }
 
     [HttpPut("{stayId}")]
+    [Authorize(Roles = "admin,physician")]
     public async Task<ActionResult<StayDTO>> Update(int stayId, [FromBody] UpdateStayDTO updateStayDto)
     {
         var exists = await _stayService.StayExistsAsync(stayId);
@@ -83,17 +93,8 @@ public class StayController : ControllerBase
         return Ok(stay);
     }
 
-    [HttpHead("{stayId}")]
-    public async Task<IActionResult> CheckExists(int stayId)
-    {
-        var exists = await _stayService.StayExistsAsync(stayId);
-        if (!exists)
-            return NotFound();
-
-        return Ok();
-    }
-
     [HttpGet("stats/active-count")]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<object>> GetActiveStaysCount()
     {
         var activeStays = await _stayService.GetActiveStaysAsync();

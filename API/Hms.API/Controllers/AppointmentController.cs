@@ -1,11 +1,13 @@
 ﻿using Hms.API.DTOs;
 using Hms.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hms.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class AppointmentController : ControllerBase
     {
         private readonly IAppointmentService _service;
@@ -16,6 +18,7 @@ namespace Hms.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "admin,physician,nurse")]
         public async Task<ActionResult<List<AppointmentDto>>> GetAll()
         {
             var appointments = await _service.GetAllAsync();
@@ -23,6 +26,7 @@ namespace Hms.API.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [Authorize(Roles = "admin,physician,nurse")]
         public async Task<ActionResult<AppointmentDto>> GetById(int id)
         {
             var appointment = await _service.GetByIdAsync(id);
@@ -35,7 +39,8 @@ namespace Hms.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<AppointmentDto>> Create(AppointmentCreateDto dto)
+        [Authorize(Roles = "admin,physician")]
+        public async Task<ActionResult<AppointmentDto>> Create([FromBody] AppointmentCreateDto dto)
         {
             try
             {
@@ -49,7 +54,8 @@ namespace Hms.API.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, AppointmentUpdateDto dto)
+        [Authorize(Roles = "admin,physician")]
+        public async Task<IActionResult> Update(int id, [FromBody] AppointmentUpdateDto dto)
         {
             try
             {
@@ -67,6 +73,7 @@ namespace Hms.API.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try

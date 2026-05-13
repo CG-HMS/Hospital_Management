@@ -1,11 +1,13 @@
 using Hms.API.DTOs.Patient;
 using Hms.API.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hms.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class PatientController : ControllerBase
 {
     private readonly IPatientService _service;
@@ -16,6 +18,7 @@ public class PatientController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "admin,physician,nurse")]
     public async Task<IActionResult> GetAllPatients()
     {
         var patients = await _service.GetAllPatientsAsync();
@@ -24,6 +27,7 @@ public class PatientController : ControllerBase
     }
 
     [HttpGet("{ssn}")]
+    [Authorize(Roles = "admin,physician,nurse,patient")]
     public async Task<IActionResult> GetPatientById(int ssn)
     {
         var patient = await _service.GetPatientByIdAsync(ssn);
@@ -32,6 +36,7 @@ public class PatientController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "admin,physician")]
     public async Task<IActionResult> CreatePatient(PatientRequestDto dto)
     {
         var patient = await _service.CreatePatientAsync(dto);
@@ -44,6 +49,7 @@ public class PatientController : ControllerBase
     }
 
     [HttpPut("{ssn}")]
+    [Authorize(Roles = "admin,physician")]
     public async Task<IActionResult> UpdatePatient(int ssn, PatientRequestDto dto)
     {
         await _service.UpdatePatientAsync(ssn, dto);
@@ -55,6 +61,7 @@ public class PatientController : ControllerBase
     }
 
     [HttpDelete("{ssn}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeletePatient(int ssn)
     {
         await _service.DeletePatientAsync(ssn);

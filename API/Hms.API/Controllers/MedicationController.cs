@@ -1,11 +1,13 @@
 using Hms.API.DTOs.Medication;
 using Hms.API.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hms.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class MedicationController : ControllerBase
 {
     private readonly IMedicationService _service;
@@ -32,6 +34,7 @@ public class MedicationController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "admin,physician")]
     public async Task<IActionResult> CreateMedication(MedicationRequestDto dto)
     {
         var medication = await _service.CreateMedicationAsync(dto);
@@ -44,10 +47,11 @@ public class MedicationController : ControllerBase
     }
 
     [HttpPut("{code}")]
+    [Authorize(Roles = "admin,physician")]
     public async Task<IActionResult> UpdateMedication(
-        int code,
-        MedicationRequestDto dto
-    )
+            int code,
+            MedicationRequestDto dto
+        )
     {
         await _service.UpdateMedicationAsync(code, dto);
 
@@ -58,6 +62,7 @@ public class MedicationController : ControllerBase
     }
 
     [HttpDelete("{code}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteMedication(int code)
     {
         await _service.DeleteMedicationAsync(code);
