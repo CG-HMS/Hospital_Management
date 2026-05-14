@@ -37,8 +37,7 @@ namespace Hms.API.Controllers
         }
 
         [HttpPost]
-        public async 
-Task<IActionResult> AddPhysician(PhysicianWriteDto dto)
+        public async Task<IActionResult> AddPhysician(PhysicianWriteDto dto)
         {
             var physician = await _service.AddPhysician(dto);
 
