@@ -15,4 +15,8 @@ namespace Hms.API.Repository.Interfaces;
         Task DeleteAsync(Medication medication);
 
         Task<bool> ExistsAsync(int code);
+
+        Task<List<DTOs.Medication.MedicationUsageDto>> GetTopMedicationsAsync(int take);
+        Task<List<DTOs.Medication.MedicationPatientDto>> GetMedicationPatientsAsync(int code);
+        Task<int> GetPrescriptionCountAsync(int code);
     }

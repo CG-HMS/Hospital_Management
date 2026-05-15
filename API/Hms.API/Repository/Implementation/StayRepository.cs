@@ -101,4 +101,20 @@ public class StayRepository : IStayRepository
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<DTOs.StayCurrentRoomDto?> GetCurrentRoomAsync(int patientId, DateTime now)
+    {
+        return await _context.Stays
+            .Include(s => s.RoomNavigation)
+            .Where(s => s.Patient == patientId && s.StayStart <= now && s.StayEnd >= now)
+            .OrderByDescending(s => s.StayStart)
+            .Select(s => new DTOs.StayCurrentRoomDto
+            {
+                StayId = s.StayId,
+                RoomNumber = s.RoomNavigation.RoomNumber,
+                RoomType = s.RoomNavigation.RoomType,
+                StayStart = s.StayStart
+            })
+            .FirstOrDefaultAsync();
+    }
 }

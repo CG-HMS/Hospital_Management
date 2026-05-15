@@ -119,5 +119,55 @@ namespace Hms.API.Repository
                                      a.Physician == physicianId &&
                                      a.Department == departmentId);
         }
+
+        public async Task<DTOs.Physician.PhysicianAppointmentStatsDto> GetAppointmentStatsAsync(int physicianId)
+        {
+            var query = _context.Appointments.Where(a => a.Physician == physicianId);
+
+            return new DTOs.Physician.PhysicianAppointmentStatsDto
+            {
+                PhysicianId = physicianId,
+                TotalAppointments = await query.CountAsync(),
+                LastAppointmentDate = await query
+                    .OrderByDescending(a => a.Starto)
+                    .Select(a => (DateTime?)a.Starto)
+                    .FirstOrDefaultAsync()
+            };
+        }
+
+        public async Task<IEnumerable<DTOs.Physician.PhysicianUpcomingAppointmentDto>> GetUpcomingAppointmentsAsync(int physicianId, DateTime fromDate)
+        {
+            return await _context.Appointments
+                .Where(a => a.Physician == physicianId && a.Starto >= fromDate)
+                .Include(a => a.PatientNavigation)
+                .OrderBy(a => a.Starto)
+                .Select(a => new DTOs.Physician.PhysicianUpcomingAppointmentDto
+                {
+                    AppointmentId = a.AppointmentId,
+                    PatientId = a.Patient,
+                    PatientName = a.PatientNavigation.Name,
+                    Starto = a.Starto,
+                    ExaminationRoom = a.ExaminationRoom
+                })
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<DTOs.Physician.PhysicianTopDto>> GetTopPhysiciansByAppointmentsAsync(int take)
+        {
+            return await _context.Appointments
+                .GroupBy(a => a.Physician)
+                .OrderByDescending(g => g.Count())
+                .Take(take)
+                .Join(_context.Physicians,
+                    g => g.Key,
+                    p => p.EmployeeId,
+                    (g, p) => new DTOs.Physician.PhysicianTopDto
+                    {
+                        PhysicianId = p.EmployeeId,
+                        PhysicianName = p.Name,
+                        AppointmentCount = g.Count()
+                    })
+                .ToListAsync();
+        }
     }
 }

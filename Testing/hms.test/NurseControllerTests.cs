@@ -8,11 +8,6 @@ using Moq;
 
 namespace Hms.API.Tests.Controllers;
 
-/// <remarks>
-/// NurseController catches ValidationException and NotFoundException
-/// internally and maps them to 400/404 responses.  Negative tests check
-/// the returned HTTP status code.
-/// </remarks>
 public class NurseControllerTests
 {
     private readonly Mock<INurseService> _mockService;

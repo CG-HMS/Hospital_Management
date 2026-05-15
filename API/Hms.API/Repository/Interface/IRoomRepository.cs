@@ -15,5 +15,8 @@ namespace Hms.API.Repository
         Task<bool> ExistsAsync(int roomNumber);
         Task<bool> BlockExistsAsync(int floor, int code);
         Task EnsureBlockExistsAsync(int floor, int code);
+        Task<List<DTOs.RoomPatientHistoryDto>> GetRoomPatientHistoryAsync(int roomNumber);
+        Task<List<DTOs.RoomUtilizationDto>> GetRoomUtilizationAsync();
+        Task<List<int>> GetOccupiedRoomsAsync(DateTime now);
     }
 }

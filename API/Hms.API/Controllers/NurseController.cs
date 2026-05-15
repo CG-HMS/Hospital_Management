@@ -69,6 +69,36 @@ namespace Hms.API.Controllers
             
         }
 
+        [HttpGet("{id:int}/on-call")]
+        [Authorize(Roles = "admin,physician,nurse")]
+        public async Task<ActionResult<List<NurseOnCallDto>>> GetOnCallSchedule(int id, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
+        {
+            try
+            {
+                var schedule = await _service.GetOnCallScheduleAsync(id, fromDate, toDate);
+                return Ok(schedule);
+            }
+            catch (Exceptions.ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("{id:int}/trained-procedures")]
+        [Authorize(Roles = "admin,physician,nurse")]
+        public async Task<ActionResult<List<NurseTrainedProcedureDto>>> GetTrainedProcedures(int id)
+        {
+            try
+            {
+                var procedures = await _service.GetTrainedProceduresAsync(id);
+                return Ok(procedures);
+            }
+            catch (Exceptions.ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPost]
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<NurseDto>> Create(NurseCreateDto dto)

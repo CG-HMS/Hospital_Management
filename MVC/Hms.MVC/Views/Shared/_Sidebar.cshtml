@@ -1,0 +1,112 @@
+@{
+    var username = Context.Session.GetString("Username") ?? "User";
+    var role = Context.Session.GetString("UserRole") ?? "guest";
+    var initials = username.Length >= 2 ? username[..2].ToUpper() : username.ToUpper();
+    var currentPath = Context.Request.Path.Value?.ToLower() ?? "";
+}
+
+<!-- Brand -->
+<div class="sidebar-brand">
+    <div class="sidebar-brand-icon">🏥</div>
+    <div class="sidebar-brand-text"><span>HMS</span> Portal</div>
+</div>
+
+<!-- Navigation -->
+<nav class="sidebar-nav">
+    <div class="nav-section-title">Main</div>
+
+    <div class="nav-item">
+        <a class="nav-link @(currentPath.Contains("/dashboard") ? "active" : "")" href="/Dashboard">
+            <span class="nav-link-icon">📊</span>
+            <span class="nav-link-text">Dashboard</span>
+        </a>
+    </div>
+
+    @if (role is "admin" or "physician" or "nurse")
+    {
+        <div class="nav-section-title">Management</div>
+
+        <div class="nav-item">
+            <a class="nav-link @(currentPath.Contains("/patient") ? "active" : "")" href="/Patient">
+                <span class="nav-link-icon">👤</span>
+                <span class="nav-link-text">Patients</span>
+            </a>
+        </div>
+
+        @if (role == "admin")
+        {
+            <div class="nav-item">
+                <a class="nav-link @(currentPath.Contains("/physician") ? "active" : "")" href="/Physician">
+                    <span class="nav-link-icon">🩺</span>
+                    <span class="nav-link-text">Physicians</span>
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a class="nav-link @(currentPath.Contains("/nurse") ? "active" : "")" href="/Nurse">
+                    <span class="nav-link-icon">👩‍⚕️</span>
+                    <span class="nav-link-text">Nurses</span>
+                </a>
+            </div>
+        }
+
+        <div class="nav-item">
+            <a class="nav-link @(currentPath.Contains("/appointment") ? "active" : "")" href="/Appointment">
+                <span class="nav-link-icon">📅</span>
+                <span class="nav-link-text">Appointments</span>
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a class="nav-link @(currentPath.Contains("/room") ? "active" : "")" href="/Room">
+                <span class="nav-link-icon">🏨</span>
+                <span class="nav-link-text">Rooms</span>
+            </a>
+        </div>
+
+        <div class="nav-section-title">Clinical</div>
+
+        <div class="nav-item">
+            <a class="nav-link @(currentPath.Contains("/medication") ? "active" : "")" href="/Medication">
+                <span class="nav-link-icon">💊</span>
+                <span class="nav-link-text">Medications</span>
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a class="nav-link @(currentPath.Contains("/prescription") ? "active" : "")" href="/Prescription">
+                <span class="nav-link-icon">📋</span>
+                <span class="nav-link-text">Prescriptions</span>
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a class="nav-link @(currentPath.Contains("/stay") ? "active" : "")" href="/Stay">
+                <span class="nav-link-icon">🛏️</span>
+                <span class="nav-link-text">Stays</span>
+            </a>
+        </div>
+    }
+
+    @if (role == "admin")
+    {
+        <div class="nav-section-title">Administration</div>
+        <div class="nav-item">
+            <a class="nav-link @(currentPath.Contains("/auth/users") ? "active" : "")" href="/Auth/Users">
+                <span class="nav-link-icon">🔑</span>
+                <span class="nav-link-text">User Management</span>
+            </a>
+        </div>
+    }
+</nav>
+
+<!-- Footer / User -->
+<div class="sidebar-footer">
+    <a class="sidebar-user" href="/Auth/Logout">
+        <div class="sidebar-user-avatar">@initials</div>
+        <div class="sidebar-user-info">
+            <div class="sidebar-user-name">@username</div>
+            <div class="sidebar-user-role">@role • Logout</div>
+        </div>
+    </a>
+</div>

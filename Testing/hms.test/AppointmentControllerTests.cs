@@ -7,12 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 
 namespace Hms.API.Tests.Controllers;
-
-/// <remarks>
-/// AppointmentController catches ValidationException and NotFoundException
-/// internally, so negative tests assert on the returned HTTP status code
-/// rather than a thrown exception.
-/// </remarks>
 public class AppointmentControllerTests
 {
     private readonly Mock<IAppointmentService> _mockService;

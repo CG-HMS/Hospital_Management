@@ -46,6 +46,21 @@ public class StayController : ControllerBase
         return Ok(stays);
     }
 
+    [HttpGet("by-patient/{patientId}/current-room")]
+    [Authorize(Roles = "admin,physician,nurse,patient")]
+    public async Task<ActionResult<StayCurrentRoomDto>> GetCurrentRoom(int patientId)
+    {
+        try
+        {
+            var room = await _stayService.GetCurrentRoomAsync(patientId);
+            return Ok(room);
+        }
+        catch (Exceptions.AppException ex)
+        {
+            return StatusCode(ex.StatusCode, new { message = ex.Message });
+        }
+    }
+
     [HttpGet("by-room/{roomId}")]
     [Authorize(Roles = "admin,nurse")]
     public async Task<ActionResult<IEnumerable<StayDTO>>> GetByRoom(int roomId)

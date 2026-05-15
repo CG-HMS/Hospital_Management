@@ -69,5 +69,45 @@ namespace Hms.API.Repository
                 await _db.SaveChangesAsync();
             }
         }
+
+        public async Task<List<DTOs.RoomPatientHistoryDto>> GetRoomPatientHistoryAsync(int roomNumber)
+        {
+            return await _db.Stays
+                .Where(s => s.Room == roomNumber)
+                .Include(s => s.PatientNavigation)
+                .OrderByDescending(s => s.StayStart)
+                .Select(s => new DTOs.RoomPatientHistoryDto
+                {
+                    StayId = s.StayId,
+                    PatientId = s.Patient,
+                    PatientName = s.PatientNavigation.Name,
+                    StayStart = s.StayStart,
+                    StayEnd = s.StayEnd
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<DTOs.RoomUtilizationDto>> GetRoomUtilizationAsync()
+        {
+            return await _db.Stays
+                .GroupBy(s => s.Room)
+                .Select(g => new DTOs.RoomUtilizationDto
+                {
+                    RoomNumber = g.Key,
+                    TotalStays = g.Count(),
+                    LastStayEnd = g.Max(x => x.StayEnd)
+                })
+                .OrderByDescending(x => x.TotalStays)
+                .ToListAsync();
+        }
+
+        public async Task<List<int>> GetOccupiedRoomsAsync(DateTime now)
+        {
+            return await _db.Stays
+                .Where(s => s.StayStart <= now && s.StayEnd >= now)
+                .Select(s => s.Room)
+                .Distinct()
+                .ToListAsync();
+        }
     }
 }

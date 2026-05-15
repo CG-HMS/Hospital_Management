@@ -45,3 +45,11 @@ public class StayDetailDTO
     public int DaysOfStay { get; set; }
 }
 
+public class StayCurrentRoomDto
+{
+    public int StayId { get; set; }
+    public int RoomNumber { get; set; }
+    public string RoomType { get; set; } = string.Empty;
+    public DateTime StayStart { get; set; }
+}
+

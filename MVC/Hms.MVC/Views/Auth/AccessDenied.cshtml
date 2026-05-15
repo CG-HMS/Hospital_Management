@@ -1,0 +1,17 @@
+@{
+    ViewData["Title"] = "Access Denied";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+<div class="login-page">
+    <div class="login-card" style="text-align: center;">
+        <div style="font-size: 4rem; margin-bottom: var(--space-lg);">🚫</div>
+        <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: var(--space-sm); color: var(--accent-red);">
+            Access Denied
+        </h1>
+        <p style="color: var(--text-muted); margin-bottom: var(--space-xl);">
+            You don't have permission to access this resource.
+        </p>
+        <a href="/Dashboard" class="btn btn-primary">← Back to Dashboard</a>
+    </div>
+</div>

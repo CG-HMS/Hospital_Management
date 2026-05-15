@@ -14,4 +14,5 @@ public interface IStayService
     Task<StayDTO> UpdateStayAsync(int stayId, UpdateStayDTO updateStayDto);
     Task<bool> DeleteStayAsync(int stayId);
     Task<bool> StayExistsAsync(int stayId);
+    Task<StayCurrentRoomDto?> GetCurrentRoomAsync(int patientId);
 }

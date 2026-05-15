@@ -12,5 +12,8 @@ namespace Hms.API.Services
         Task<RoomDto> CreateAsync(int roomNumber, RoomWriteDto dto);
         Task<RoomDto> UpdateAsync(int roomNumber, RoomWriteDto dto);
         Task UpdateAvailabilityAsync(int roomNumber, bool unavailable);
+        Task<IEnumerable<RoomPatientHistoryDto>> GetRoomPatientHistoryAsync(int roomNumber);
+        Task<IEnumerable<RoomUtilizationDto>> GetRoomUtilizationAsync();
+        Task<IEnumerable<int>> GetOccupiedRoomsAsync();
     }
 }

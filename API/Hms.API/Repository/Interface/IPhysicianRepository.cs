@@ -23,6 +23,10 @@ namespace Hms.API.Repository
 
         Task<IEnumerable<PatientDto>> GetPatientsByPhysician(int physicianId);
 
+        Task<DTOs.Physician.PhysicianAppointmentStatsDto> GetAppointmentStatsAsync(int physicianId);
+        Task<IEnumerable<DTOs.Physician.PhysicianUpcomingAppointmentDto>> GetUpcomingAppointmentsAsync(int physicianId, DateTime fromDate);
+        Task<IEnumerable<DTOs.Physician.PhysicianTopDto>> GetTopPhysiciansByAppointmentsAsync(int take);
+
         Task<bool> PhysicianExists(int physicianId);
 
         Task<bool> DepartmentExists(int departmentId);

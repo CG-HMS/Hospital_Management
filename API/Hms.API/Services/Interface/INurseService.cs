@@ -9,4 +9,6 @@ public interface INurseService
     Task<NurseDto> AddAsync(NurseCreateDto dto);
     Task UpdateAsync(int id, NurseUpdateDto dto);
     Task DeleteAsync(int id);
+    Task<List<NurseOnCallDto>> GetOnCallScheduleAsync(int id, DateTime? fromDate, DateTime? toDate);
+    Task<List<NurseTrainedProcedureDto>> GetTrainedProceduresAsync(int id);
 }

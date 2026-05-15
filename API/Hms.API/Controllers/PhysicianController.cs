@@ -127,6 +127,46 @@ namespace Hms.API.Controllers
             return Ok(appointments);
         }
 
+        [HttpGet("{id}/appointment-stats")]
+        [Authorize(Roles = "admin,physician")]
+        public async Task<IActionResult> GetAppointmentStats(int id)
+        {
+            if (id <= 0)
+            {
+                throw new BadRequestException("Physician ID must be positive.");
+            }
+
+            try
+            {
+                var stats = await _service.GetAppointmentStatsAsync(id);
+                return Ok(stats);
+            }
+            catch (AppException ex)
+            {
+                return StatusCode(ex.StatusCode, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("{id}/upcoming-appointments")]
+        [Authorize(Roles = "admin,physician")]
+        public async Task<IActionResult> GetUpcomingAppointments(int id, [FromQuery] DateTime? fromDate)
+        {
+            if (id <= 0)
+            {
+                throw new BadRequestException("Physician ID must be positive.");
+            }
+
+            try
+            {
+                var appointments = await _service.GetUpcomingAppointmentsAsync(id, fromDate);
+                return Ok(appointments);
+            }
+            catch (AppException ex)
+            {
+                return StatusCode(ex.StatusCode, new { message = ex.Message });
+            }
+        }
+
         [HttpGet("{id}/patients")]
         [Authorize(Roles = "admin,physician")]
         public async Task<IActionResult> GetPatients(int id)
@@ -138,6 +178,21 @@ namespace Hms.API.Controllers
             var patients = await _service.GetPatientsByPhysician(id);
 
             return Ok(patients);
+        }
+
+        [HttpGet("top")]
+        [Authorize(Roles = "admin,physician")]
+        public async Task<IActionResult> GetTopPhysicians([FromQuery] int take = 5)
+        {
+            try
+            {
+                var physicians = await _service.GetTopPhysiciansByAppointmentsAsync(take);
+                return Ok(physicians);
+            }
+            catch (AppException ex)
+            {
+                return StatusCode(ex.StatusCode, new { message = ex.Message });
+            }
         }
 
         [HttpGet("profile")]

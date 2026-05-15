@@ -13,4 +13,8 @@ public interface IMedicationService
     Task UpdateMedicationAsync(int code, MedicationRequestDto dto);
 
     Task DeleteMedicationAsync(int code);
+
+    Task<int> GetPrescriptionCountAsync(int code);
+    Task<IEnumerable<MedicationPatientDto>> GetMedicationPatientsAsync(int code);
+    Task<IEnumerable<MedicationUsageDto>> GetTopMedicationsAsync(int take);
 }

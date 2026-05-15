@@ -38,6 +38,55 @@ namespace Hms.API.Controllers
             return Ok(appointment);
         }
 
+        [HttpGet("filtered")]
+        [Authorize(Roles = "admin,physician,nurse")]
+        public async Task<ActionResult<List<AppointmentFilterDto>>> GetFiltered([
+            FromQuery] DateTime? fromDate,
+            [FromQuery] DateTime? toDate,
+            [FromQuery] int? physicianId,
+            [FromQuery] int? patientId)
+        {
+            try
+            {
+                var appointments = await _service.GetAppointmentsFilteredAsync(fromDate, toDate, physicianId, patientId);
+                return Ok(appointments);
+            }
+            catch (Exceptions.ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("today")]
+        [Authorize(Roles = "admin,physician,nurse")]
+        public async Task<ActionResult<List<AppointmentFilterDto>>> GetToday([FromQuery] DateTime? date)
+        {
+            try
+            {
+                var appointments = await _service.GetTodayAppointmentsAsync(date);
+                return Ok(appointments);
+            }
+            catch (Exceptions.ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("grouped-by-physician")]
+        [Authorize(Roles = "admin,physician,nurse")]
+        public async Task<ActionResult<List<AppointmentGroupDto>>> GetGroupedByPhysician()
+        {
+            try
+            {
+                var grouped = await _service.GetAppointmentsGroupedByPhysicianAsync();
+                return Ok(grouped);
+            }
+            catch (Exceptions.ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPost]
         [Authorize(Roles = "admin,physician")]
         public async Task<ActionResult<AppointmentDto>> Create([FromBody] AppointmentCreateDto dto)

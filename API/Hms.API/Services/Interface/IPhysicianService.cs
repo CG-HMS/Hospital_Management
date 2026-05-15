@@ -14,5 +14,9 @@ namespace Hms.API.Services
         Task<IEnumerable<AppointDto>> GetAppointmentsByPhysician(int physicianId);
         Task<IEnumerable<PatientDto>> GetPatientsByPhysician(int physicianId);
 
+        Task<DTOs.Physician.PhysicianAppointmentStatsDto> GetAppointmentStatsAsync(int physicianId);
+        Task<IEnumerable<DTOs.Physician.PhysicianUpcomingAppointmentDto>> GetUpcomingAppointmentsAsync(int physicianId, DateTime? fromDate);
+        Task<IEnumerable<DTOs.Physician.PhysicianTopDto>> GetTopPhysiciansByAppointmentsAsync(int take);
+
     }
 }

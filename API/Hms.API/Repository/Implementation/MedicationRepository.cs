@@ -46,4 +46,46 @@ namespace Hms.API.Repository;
             return await _context.Medications
                 .AnyAsync(m => m.Code == code);
         }
+
+        public async Task<List<DTOs.Medication.MedicationUsageDto>> GetTopMedicationsAsync(int take)
+        {
+            return await _context.Prescribes
+                .GroupBy(p => p.Medication)
+                .OrderByDescending(g => g.Count())
+                .Take(take)
+                .Join(_context.Medications,
+                    g => g.Key,
+                    m => m.Code,
+                    (g, m) => new DTOs.Medication.MedicationUsageDto
+                    {
+                        MedicationCode = m.Code,
+                        MedicationName = m.Name,
+                        PrescriptionCount = g.Count()
+                    })
+                .ToListAsync();
+        }
+
+        public async Task<List<DTOs.Medication.MedicationPatientDto>> GetMedicationPatientsAsync(int code)
+        {
+            return await _context.Prescribes
+                .Where(p => p.Medication == code)
+                .Include(p => p.PatientNavigation)
+                .Include(p => p.PhysicianNavigation)
+                .OrderByDescending(p => p.Date)
+                .Select(p => new DTOs.Medication.MedicationPatientDto
+                {
+                    PatientId = p.Patient,
+                    PatientName = p.PatientNavigation.Name,
+                    Dose = p.Dose,
+                    Date = p.Date,
+                    PhysicianId = p.Physician,
+                    PhysicianName = p.PhysicianNavigation.Name
+                })
+                .ToListAsync();
+        }
+
+        public async Task<int> GetPrescriptionCountAsync(int code)
+        {
+            return await _context.Prescribes.CountAsync(p => p.Medication == code);
+        }
     }

@@ -30,6 +30,20 @@ namespace Hms.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("occupied")]
+        public async Task<IActionResult> GetOccupied()
+        {
+            try
+            {
+                var rooms = await _roomService.GetOccupiedRoomsAsync();
+                return Ok(rooms);
+            }
+            catch (AppException ex)
+            {
+                return StatusCode(ex.StatusCode, new { message = ex.Message });
+            }
+        }
+
         // ── GET /api/rooms/{id}  — ANY ROLE ───────────────────────────────────
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
@@ -38,6 +52,22 @@ namespace Hms.API.Controllers
 
             var result = await _roomService.GetByIdAsync(id);
             return Ok(result);
+        }
+
+        [HttpGet("{id:int}/history")]
+        public async Task<IActionResult> GetRoomHistory(int id)
+        {
+            if (id <= 0) throw new BadRequestException("Room number must be a positive integer.");
+
+            try
+            {
+                var history = await _roomService.GetRoomPatientHistoryAsync(id);
+                return Ok(history);
+            }
+            catch (AppException ex)
+            {
+                return StatusCode(ex.StatusCode, new { message = ex.Message });
+            }
         }
 
         // ── GET /api/rooms/block/{floor}/{code}  — ANY ROLE ───────────────────
@@ -60,6 +90,20 @@ namespace Hms.API.Controllers
 
             var result = await _roomService.GetByTypeAsync(type);
             return Ok(result);
+        }
+
+        [HttpGet("utilization")]
+        public async Task<IActionResult> GetUtilization()
+        {
+            try
+            {
+                var utilization = await _roomService.GetRoomUtilizationAsync();
+                return Ok(utilization);
+            }
+            catch (AppException ex)
+            {
+                return StatusCode(ex.StatusCode, new { message = ex.Message });
+            }
         }
 
         // ── POST /api/rooms/{roomNumber}  — ADMIN ─────────────────────────────

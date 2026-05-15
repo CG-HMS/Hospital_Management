@@ -1,0 +1,54 @@
+@model Hms.MVC.Models.Patient.PatientViewModel
+
+@{
+    ViewData["Title"] = "Add Patient";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Add New Patient</h1>
+        <p>Enter patient details below.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-secondary">
+        ← Back to List
+    </a>
+</div>
+
+<div class="card animate-fade-in-up" style="max-width: 600px;">
+    <div class="card-header">
+        <h3 class="card-title">Patient Information</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="form-group">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" placeholder="John Doe" />
+                <span asp-validation-for="Name" class="form-error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label asp-for="Phone" class="form-label"></label>
+                <input asp-for="Phone" class="form-control" placeholder="123-456-7890" />
+                <span asp-validation-for="Phone" class="form-error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label asp-for="Address" class="form-label"></label>
+                <textarea asp-for="Address" class="form-control" rows="3" placeholder="123 Main St, City, Country"></textarea>
+                <span asp-validation-for="Address" class="form-error"></span>
+            </div>
+            
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    Create Patient
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -15,4 +15,5 @@ public interface IStayRepository
     Task<bool> DeleteAsync(int stayId);
     Task<bool> ExistsAsync(int stayId);
     Task SaveAsync();
+    Task<DTOs.StayCurrentRoomDto?> GetCurrentRoomAsync(int patientId, DateTime now);
 }

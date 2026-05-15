@@ -2,13 +2,19 @@
 using Hms.API.Exceptions;
 using Hms.API.Models;
 using Hms.API.Repository;
+using Microsoft.Extensions.Logging;
 
 namespace Hms.API.Services
 {
     public class RoomService : IRoomService
     {
         private readonly IRoomRepository _repo;
-        public RoomService(IRoomRepository repo) => _repo = repo;
+        private readonly ILogger<RoomService> _logger;
+        public RoomService(IRoomRepository repo, ILogger<RoomService> logger)
+        {
+            _repo = repo;
+            _logger = logger;
+        }
 
         public async Task<IEnumerable<RoomDto>> GetAllAsync()
             => (await _repo.GetAllAsync()).Select(ToDto);
@@ -76,6 +82,55 @@ namespace Hms.API.Services
             room.Unavailable = unavailable;
             await _repo.UpdateAsync(room);
         }
+
+        public async Task<IEnumerable<RoomPatientHistoryDto>> GetRoomPatientHistoryAsync(int roomNumber)
+        {
+            try
+            {
+                if (!await _repo.ExistsAsync(roomNumber))
+                {
+                    throw new NotFoundException("Room", roomNumber);
+                }
+
+                return await _repo.GetRoomPatientHistoryAsync(roomNumber);
+            }
+            catch (AppException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get room history for room {RoomNumber}.", roomNumber);
+                throw new ValidationException("Failed to get room history.");
+            }
+        }
+
+        public async Task<IEnumerable<RoomUtilizationDto>> GetRoomUtilizationAsync()
+        {
+            try
+            {
+                return await _repo.GetRoomUtilizationAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get room utilization.");
+                throw new ValidationException("Failed to get room utilization.");
+            }
+        }
+
+        public async Task<IEnumerable<int>> GetOccupiedRoomsAsync()
+        {
+            try
+            {
+                return await _repo.GetOccupiedRoomsAsync(DateTime.Now);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get occupied rooms.");
+                throw new ValidationException("Failed to get occupied rooms.");
+            }
+        }
+
 
         private static RoomDto ToDto(Room r) => new()
         {
