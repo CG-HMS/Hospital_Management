@@ -21,7 +21,7 @@ public class PrescriptionController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "admin,physician")]
+    [Authorize(Roles = "admin,physician,nurse")]
     public async Task<ActionResult<IEnumerable<PrescriptionDTO>>> GetAll()
     {
         var prescriptions = await _prescriptionService.GetAllPrescriptionsAsync();
@@ -29,7 +29,7 @@ public class PrescriptionController : ControllerBase
     }
 
     [HttpGet("{physician}/{patient}/{medication}")]
-    [Authorize(Roles = "admin,physician")]
+    [Authorize(Roles = "admin,physician,nurse")]
     public async Task<ActionResult<PrescriptionDetailDTO>> GetById(int physician, int patient, int medication)
     {
         var prescription = await _prescriptionService.GetPrescriptionByIdAsync(physician, patient, medication);
@@ -40,7 +40,7 @@ public class PrescriptionController : ControllerBase
     }
 
     [HttpGet("by-physician/{physicianId}")]
-    [Authorize(Roles = "admin,physician")]
+    [Authorize(Roles = "admin,physician,nurse")]
     public async Task<ActionResult<IEnumerable<PrescriptionDTO>>> GetByPhysician(int physicianId)
     {
         var prescriptions = await _prescriptionService.GetPrescriptionsByPhysicianAsync(physicianId);
@@ -48,7 +48,7 @@ public class PrescriptionController : ControllerBase
     }
 
     [HttpGet("by-patient/{patientId}")]
-    [Authorize(Roles = "admin,physician,patient")]
+    [Authorize(Roles = "admin,physician,nurse,patient")]
     public async Task<ActionResult<IEnumerable<PrescriptionDTO>>> GetByPatient(int patientId)
     {
         var prescriptions = await _prescriptionService.GetPrescriptionsByPatientAsync(patientId);
@@ -56,7 +56,7 @@ public class PrescriptionController : ControllerBase
     }
 
     [HttpGet("by-medication/{medicationId}")]
-    [Authorize(Roles = "admin,physician")]
+    [Authorize(Roles = "admin,physician,nurse")]
     public async Task<ActionResult<IEnumerable<PrescriptionDTO>>> GetByMedication(int medicationId)
     {
         var prescriptions = await _prescriptionService.GetPrescriptionsByMedicationAsync(medicationId);
@@ -64,7 +64,7 @@ public class PrescriptionController : ControllerBase
     }
 
     [HttpGet("by-appointment/{appointmentId}")]
-    [Authorize(Roles = "admin,physician")]
+    [Authorize(Roles = "admin,physician,nurse")]
     public async Task<ActionResult<IEnumerable<PrescriptionDTO>>> GetByAppointment(int appointmentId)
     {
         var prescriptions = await _prescriptionService.GetPrescriptionsByAppointmentAsync(appointmentId);
