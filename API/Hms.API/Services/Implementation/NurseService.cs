@@ -33,8 +33,11 @@ public class NurseService : INurseService
     {
         try
         {
+            var allNurses = await _repository.GetAllAsync();
             var nurse = new Nurse
             {
+                EmployeeId = allNurses.Any() ? allNurses.Max(n => n.EmployeeId) + 1 : 1,
+
                 Name = dto.Name,
                 Position = dto.Position,
                 Registered = dto.Registered,

@@ -20,4 +20,28 @@ public class NurseController : Controller
         var nurses = await _api.GetAsync<List<NurseViewModel>>("Nurse");
         return View(nurses ?? new List<NurseViewModel>());
     }
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(NurseCreateViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        try
+        {
+            await _api.PostAsync<NurseCreateViewModel>("Nurse", model);
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("", ex.Message);
+            return View(model);
+        }
+    }
 }
