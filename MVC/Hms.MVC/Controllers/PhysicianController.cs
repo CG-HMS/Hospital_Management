@@ -20,4 +20,20 @@ public class PhysicianController : Controller
         var physicians = await _api.GetAsync<List<PhysicianViewModel>>("Physician");
         return View(physicians ?? new List<PhysicianViewModel>());
     }
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(PhysicianViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+         
+        await _api.PostAsync<PhysicianViewModel>("Physician", model);
+
+        return RedirectToAction(nameof(Index));
+    }
 }
