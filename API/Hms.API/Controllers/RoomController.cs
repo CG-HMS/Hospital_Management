@@ -108,7 +108,7 @@ namespace Hms.API.Controllers
 
         // ── POST /api/rooms/{roomNumber}  — ADMIN ─────────────────────────────
         [HttpPost("{roomNumber:int}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin,doctor")]
         public async Task<IActionResult> Create(int roomNumber, [FromBody] RoomWriteDto dto)
         {
             if (roomNumber <= 0) throw new BadRequestException("Room number must be a positive integer.");
@@ -119,7 +119,7 @@ namespace Hms.API.Controllers
 
         // ── PUT /api/rooms/{id}  — ADMIN ──────────────────────────────────────
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin,doctor")]
         public async Task<IActionResult> Update(int id, [FromBody] RoomWriteDto dto)
         {
             if (id <= 0) throw new BadRequestException("Room number must be a positive integer.");
@@ -130,7 +130,7 @@ namespace Hms.API.Controllers
 
         // ── PATCH /api/rooms/{id}/availability  — ADMIN ───────────────────────
         [HttpPatch("{id:int}/availability")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin,doctor")]
         public async Task<IActionResult> UpdateAvailability(int id, [FromBody] bool unavailable)
         {
             if (id <= 0) throw new BadRequestException("Room number must be a positive integer.");

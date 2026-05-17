@@ -138,6 +138,6 @@ public class AuthController : Controller
     public async Task<IActionResult> Users()
     {
         var users = await _api.GetAsync<List<UserViewModel>>("auth/users");
-        return View(users ?? new List<UserViewModel>());
+        return View(users?.OrderBy(u => u.UserId).ToList() ?? new List<UserViewModel>());
     }
 }
