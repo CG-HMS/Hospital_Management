@@ -82,6 +82,9 @@
         $(document).ready(function () {
             $('#usersTable').DataTable({
                 responsive: true,
+
+                order :[[5, 'desc']],
+
                 language: {
                     search: "_INPUT_",
                     searchPlaceholder: "Search users..."
