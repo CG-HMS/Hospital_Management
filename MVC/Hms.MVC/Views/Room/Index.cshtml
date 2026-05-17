@@ -1,0 +1,95 @@
+@model IEnumerable<Hms.MVC.Models.Room.RoomViewModel>
+
+@{
+    ViewData["Title"] = "Rooms";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Rooms</h1>
+        <p>Manage hospital rooms.</p>
+    </div>
+</div>
+
+<div class="table-container animate-fade-in-up">
+    <div class="table-header">
+        <h3 class="table-title">Room List</h3>
+    </div>
+    <div class="card-body" style="padding: var(--space-lg);">
+        <table id="roomsTable" class="hms-table w-100">
+            <thead>
+                <tr>
+                    <th>Room Number</th>
+                    <th>Type</th>
+                    <th>Block/Floor</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <span class="badge badge-teal">@Html.DisplayFor(modelItem => item.RoomNumber)</span>
+                        </td>
+                        <td style="font-weight: 500; color: var(--text-primary);">
+                            @Html.DisplayFor(modelItem => item.RoomType)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.BlockCode) / @Html.DisplayFor(modelItem => item.BlockFloor)
+                        </td>
+                        <td>
+                            @if(item.Unavailable)
+                            {
+                                <span class="badge badge-red">Occupied</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-green">Available</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" />
+    
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#roomsTable').DataTable({
+                responsive: true,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search rooms..."
+                },
+                drawCallback: function () {
+                    $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+                }
+            });
+        });
+    </script>
+    <style>
+        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing, .dataTables_wrapper .dataTables_paginate {
+            color: var(--text-secondary); margin-bottom: var(--space-md);
+        }
+        .dataTables_wrapper .dataTables_filter input {
+            background-color: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm); padding: 4px 8px;
+        }
+        .dataTables_wrapper .dataTables_length select {
+            background-color: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-sm); padding: 4px 8px;
+        }
+        .page-item.disabled .page-link { background-color: var(--bg-card); border-color: var(--border-color); color: var(--text-muted); }
+        .page-item .page-link { background-color: var(--bg-card); border-color: var(--border-color); color: var(--text-primary); }
+        .page-item.active .page-link { background-color: var(--accent-teal); border-color: var(--accent-teal); color: #fff;}
+    </style>
+}

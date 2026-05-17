@@ -1,0 +1,173 @@
+@model Hms.MVC.Models.Dashboard.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="animate-fade-in">
+    <!-- Welcome -->
+    <div class="page-header">
+        <div>
+            <h1>Welcome back, @Model.Username 👋</h1>
+            <p>Here's what's happening at the hospital today.</p>
+        </div>
+        <span class="badge badge-teal" style="font-size: 0.85rem; padding: 6px 16px;">
+            @Model.Role.ToUpper()
+        </span>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stats-grid stagger-children">
+        <div class="stat-card teal">
+            <div class="stat-info">
+                <div class="stat-label">Total Patients</div>
+                <div class="stat-value">@Model.TotalPatients</div>
+            </div>
+            <div class="stat-icon teal">👤</div>
+        </div>
+
+        <div class="stat-card blue">
+            <div class="stat-info">
+                <div class="stat-label">Today's Appointments</div>
+                <div class="stat-value">@Model.TodayAppointments</div>
+            </div>
+            <div class="stat-icon blue">📅</div>
+        </div>
+
+        <div class="stat-card purple">
+            <div class="stat-info">
+                <div class="stat-label">Available Rooms</div>
+                <div class="stat-value">@Model.AvailableRooms</div>
+            </div>
+            <div class="stat-icon purple">🏨</div>
+        </div>
+
+        <div class="stat-card amber">
+            <div class="stat-info">
+                <div class="stat-label">Active Stays</div>
+                <div class="stat-value">@Model.ActiveStays</div>
+            </div>
+            <div class="stat-icon amber">🛏️</div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-grid">
+        <!-- Room Utilization -->
+        <div class="card animate-fade-in-up">
+            <div class="card-header">
+                <h3 class="card-title">🏨 Room Overview</h3>
+                <a href="/Room" class="btn btn-ghost btn-sm">View All →</a>
+            </div>
+            <div class="card-body">
+                @if (Model.RoomSummary.Any())
+                {
+                    <div style="display: flex; gap: var(--space-xl); flex-wrap: wrap;">
+                        <div style="text-align: center; flex: 1;">
+                            <div style="font-size: 2.5rem; font-weight: 800; color: var(--accent-green);">
+                                @Model.RoomSummary.Count(r => !r.Unavailable)
+                            </div>
+                            <div class="text-muted" style="font-size: 0.82rem;">Available</div>
+                        </div>
+                        <div style="text-align: center; flex: 1;">
+                            <div style="font-size: 2.5rem; font-weight: 800; color: var(--accent-red);">
+                                @Model.RoomSummary.Count(r => r.Unavailable)
+                            </div>
+                            <div class="text-muted" style="font-size: 0.82rem;">Occupied</div>
+                        </div>
+                        <div style="text-align: center; flex: 1;">
+                            <div style="font-size: 2.5rem; font-weight: 800; color: var(--accent-teal);">
+                                @Model.RoomSummary.Count
+                            </div>
+                            <div class="text-muted" style="font-size: 0.82rem;">Total</div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏨</div>
+                        <div class="empty-state-title">No room data</div>
+                        <div class="empty-state-text">Room information is not available right now.</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card animate-fade-in-up">
+            <div class="card-header">
+                <h3 class="card-title">⚡ Quick Actions</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+                    @if (Model.Role is "admin" or "physician")
+                    {
+                        <a href="/Patient/Create" class="btn btn-secondary w-100">
+                            👤 Add Patient
+                        </a>
+                        <a href="/Appointment/Create" class="btn btn-secondary w-100">
+                            📅 Book Appointment
+                        </a>
+                    }
+                    <a href="/Patient" class="btn btn-secondary w-100">
+                        📋 View Patients
+                    </a>
+                    <a href="/Room/Available" class="btn btn-secondary w-100">
+                        🏨 Available Rooms
+                    </a>
+                    <a href="/Medication" class="btn btn-secondary w-100">
+                        💊 Medications
+                    </a>
+                    <a href="/Stay/Active" class="btn btn-secondary w-100">
+                        🛏️ Active Stays
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Appointments Table -->
+    <div class="table-container animate-fade-in-up">
+        <div class="table-header">
+            <h3 class="table-title">📅 Today's Appointments</h3>
+            <a href="/Appointment" class="btn btn-ghost btn-sm">View All →</a>
+        </div>
+
+        @if (Model.RecentAppointments.Any())
+        {
+            <table class="hms-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Patient</th>
+                        <th>Physician</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Room</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var apt in Model.RecentAppointments.Take(8))
+                    {
+                        <tr>
+                            <td><span class="badge badge-blue">#@apt.AppointmentId</span></td>
+                            <td style="color: var(--text-primary); font-weight: 500;">@apt.PatientName</td>
+                            <td>@apt.PhysicianName</td>
+                            <td>@apt.Starto.ToString("hh:mm tt")</td>
+                            <td>@apt.Endo.ToString("hh:mm tt")</td>
+                            <td><span class="badge badge-teal">@apt.ExaminationRoom</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon">📅</div>
+                <div class="empty-state-title">No appointments today</div>
+                <div class="empty-state-text">There are no scheduled appointments for today.</div>
+            </div>
+        }
+    </div>
+</div>

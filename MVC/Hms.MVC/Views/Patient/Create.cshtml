@@ -1,0 +1,273 @@
+@model Hms.MVC.Models.Patient.PatientViewModel
+
+@{
+    ViewData["Title"] = "Add Patient";
+}
+
+<!-- Premium UI Styles for Create Page -->
+<style>
+    :root {
+        --glass-bg: rgba(20, 25, 40, 0.65);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --primary-gradient: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+        --text-glow: 0 0 10px rgba(0, 210, 255, 0.4);
+    }
+
+    body {
+        position: relative;
+        background-color: #0b0f19;
+    }
+
+    /* Animated Background Blobs */
+    .bg-blob {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(100px);
+        z-index: -1;
+        animation: float 15s ease-in-out infinite alternate;
+        opacity: 0.5;
+    }
+
+    .blob-1 {
+        width: 400px;
+        height: 400px;
+        background: #3a7bd5;
+        top: -10%;
+        left: -10%;
+    }
+
+    .blob-2 {
+        width: 500px;
+        height: 500px;
+        background: #00d2ff;
+        bottom: -20%;
+        right: -10%;
+        animation-delay: -5s;
+    }
+
+    @@keyframes float {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(50px, 50px) scale(1.1); }
+    }
+
+    .glass-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1.5rem 2rem;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .glass-header h1 {
+        margin: 0;
+        font-size: 2.2rem;
+        font-weight: 700;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: var(--text-glow);
+    }
+
+    .glass-header p {
+        margin: 0;
+        color: #94a3b8;
+        font-size: 0.95rem;
+        margin-top: 5px;
+    }
+
+    .btn-secondary-glass {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: white;
+        padding: 10px 24px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-secondary-glass:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        margin: 0 auto;
+    }
+
+    .glass-card h3 {
+        color: white;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 1rem;
+    }
+
+    .floating-form-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .floating-form-group .form-control {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--glass-border);
+        color: white;
+        padding: 1.2rem 1rem 0.6rem 1rem;
+        border-radius: 12px;
+        height: auto;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .floating-form-group .form-control:focus {
+        background: rgba(0, 0, 0, 0.4);
+        border-color: #00d2ff;
+        box-shadow: 0 0 0 4px rgba(0, 210, 255, 0.1);
+        outline: none;
+    }
+
+    .floating-form-group label {
+        position: absolute;
+        top: 50%;
+        left: 1rem;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        transition: all 0.2s ease;
+        pointer-events: none;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .floating-form-group textarea.form-control {
+        padding-top: 1.5rem;
+    }
+
+    .floating-form-group textarea + label {
+        top: 1rem;
+        transform: none;
+    }
+
+    .floating-form-group .form-control:focus + label,
+    .floating-form-group .form-control:not(:placeholder-shown) + label {
+        top: 0.4rem;
+        font-size: 0.75rem;
+        color: #00d2ff;
+        transform: none;
+    }
+
+    .btn-submit {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+        padding: 14px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 210, 255, 0.5);
+    }
+</style>
+
+<!-- Background Elements -->
+<div class="bg-blob blob-1"></div>
+<div class="bg-blob blob-2"></div>
+
+<div class="container-fluid py-4">
+    <div class="glass-header animate-fade-in-up">
+        <div>
+            <h1><i class="fas fa-user-plus me-2"></i> Register Patient</h1>
+            <p>Enter the patient's personal and medical information below.</p>
+        </div>
+        <a asp-action="Index" class="btn-secondary-glass">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="glass-card animate-fade-in-up" style="max-width: 800px; animation-delay: 0.1s;">
+        <h3><i class="fas fa-info-circle me-2" style="color: #00d2ff;"></i> Patient Details</h3>
+        
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="background: rgba(255,65,108,0.1); border: 1px solid rgba(255,65,108,0.3); color: #ff416c; border-radius: 12px;"></div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="floating-form-group">
+                        <input asp-for="Name" class="form-control" placeholder=" " />
+                        <label asp-for="Name">Full Name</label>
+                        <span asp-validation-for="Name" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="floating-form-group">
+                        <input asp-for="Phone" class="form-control" placeholder=" " />
+                        <label asp-for="Phone">Phone Number</label>
+                        <span asp-validation-for="Phone" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="floating-form-group">
+                <textarea asp-for="Address" class="form-control" rows="3" placeholder=" "></textarea>
+                <label asp-for="Address">Complete Address</label>
+                <span asp-validation-for="Address" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="floating-form-group">
+                        <input asp-for="Ssn" class="form-control" placeholder=" " />
+                        <label asp-for="Ssn">SSN (Social Security)</label>
+                        <span asp-validation-for="Ssn" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="floating-form-group">
+                        <input asp-for="InsuranceId" class="form-control" placeholder=" " />
+                        <label asp-for="InsuranceId">Insurance ID</label>
+                        <span asp-validation-for="InsuranceId" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="floating-form-group">
+                        <input asp-for="Pcp" class="form-control" placeholder=" " />
+                        <label asp-for="Pcp">Primary Care Physician ID</label>
+                        <span asp-validation-for="Pcp" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-check-circle me-2"></i> Register Patient
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

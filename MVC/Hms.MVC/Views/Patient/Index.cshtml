@@ -1,0 +1,366 @@
+@model IEnumerable<Hms.MVC.Models.Patient.PatientViewModel>
+
+@{
+    ViewData["Title"] = "Patients";
+}
+
+<!-- Premium UI Styles -->
+<style>
+    :root {
+        --glass-bg: rgba(20, 25, 40, 0.65);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --primary-gradient: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+        --danger-gradient: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        --text-glow: 0 0 10px rgba(0, 210, 255, 0.4);
+    }
+
+    body {
+        position: relative;
+        background-color: #0b0f19;
+    }
+
+    /* Animated Background Blobs */
+    .bg-blob {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(100px);
+        z-index: -1;
+        animation: float 15s ease-in-out infinite alternate;
+        opacity: 0.5;
+    }
+
+    .blob-1 {
+        width: 400px;
+        height: 400px;
+        background: #3a7bd5;
+        top: -10%;
+        left: -10%;
+        animation-delay: 0s;
+    }
+
+    .blob-2 {
+        width: 500px;
+        height: 500px;
+        background: #00d2ff;
+        bottom: -20%;
+        right: -10%;
+        animation-delay: -5s;
+    }
+
+    @@keyframes float {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(50px, 50px) scale(1.1); }
+    }
+
+    .glass-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1.5rem 2rem;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .glass-header h1 {
+        margin: 0;
+        font-size: 2.2rem;
+        font-weight: 700;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: var(--text-glow);
+    }
+
+    .glass-header p {
+        margin: 0;
+        color: #94a3b8;
+        font-size: 0.95rem;
+        margin-top: 5px;
+    }
+
+    .btn-premium {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+        padding: 10px 24px;
+        border-radius: 50px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-premium:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 20px rgba(0, 210, 255, 0.5);
+        color: white;
+    }
+
+    .glass-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    }
+
+    .glass-table {
+        width: 100%;
+        color: #e2e8f0;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+    }
+
+    .glass-table thead th {
+        border: none;
+        color: #94a3b8;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        padding: 0 1.5rem 1rem 1.5rem;
+    }
+
+    .glass-table tbody tr {
+        background: rgba(255, 255, 255, 0.03);
+        transition: all 0.3s ease;
+    }
+
+    .glass-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: scale(1.01);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .glass-table tbody td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+        border: none;
+        border-top: 1px solid var(--glass-border);
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .glass-table tbody td:first-child {
+        border-left: 1px solid var(--glass-border);
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+    }
+
+    .glass-table tbody td:last-child {
+        border-right: 1px solid var(--glass-border);
+        border-top-right-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+
+    .pill-badge {
+        background: rgba(0, 210, 255, 0.1);
+        color: #00d2ff;
+        border: 1px solid rgba(0, 210, 255, 0.3);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        transition: all 0.2s ease;
+        margin-right: 8px;
+        color: white;
+    }
+
+    .action-btn.view {
+        background: rgba(58, 123, 213, 0.2);
+        color: #3a7bd5;
+    }
+
+    .action-btn.view:hover {
+        background: #3a7bd5;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .action-btn.delete {
+        background: rgba(255, 65, 108, 0.2);
+        color: #ff416c;
+    }
+
+    .action-btn.delete:hover {
+        background: var(--danger-gradient);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(255, 65, 108, 0.4);
+    }
+
+    /* Custom DataTables styling for the dark theme */
+    .dataTables_wrapper .dataTables_length, 
+    .dataTables_wrapper .dataTables_filter, 
+    .dataTables_wrapper .dataTables_info {
+        color: #94a3b8 !important;
+    }
+    
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--glass-border);
+        color: white;
+        border-radius: 8px;
+        padding: 6px 12px;
+        outline: none;
+    }
+    
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #00d2ff;
+        box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2);
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        color: #94a3b8 !important;
+        border: none !important;
+        background: transparent !important;
+        border-radius: 50% !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: var(--primary-gradient) !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: 0 2px 10px rgba(0, 210, 255, 0.4);
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+    }
+</style>
+
+<!-- Background Elements -->
+<div class="bg-blob blob-1"></div>
+<div class="bg-blob blob-2"></div>
+
+<div class="container-fluid py-4">
+    <div class="glass-header animate-fade-in-up">
+        <div>
+            <h1><i class="fas fa-users-medical me-2"></i> Patient Directory</h1>
+            <p>View, manage, and update patient records</p>
+        </div>
+        <a asp-action="Create" class="btn-premium">
+            <i class="fas fa-plus"></i> Add New Patient
+        </a>
+    </div>
+
+    <div class="glass-container animate-fade-in-up" style="animation-delay: 0.1s;">
+        <table id="patientsTable" class="glass-table">
+            <thead>
+                <tr>
+                    <th>SSN (ID)</th>
+                    <th>Full Name</th>
+                    <th>Address</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <span class="pill-badge"><i class="fas fa-id-card me-1"></i> @Html.DisplayFor(modelItem => item.Ssn)</span>
+                        </td>
+                        <td style="font-weight: 500; font-size: 1.05rem; letter-spacing: 0.5px;">
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td style="color: #cbd5e1;">
+                            <i class="fas fa-map-marker-alt me-2 text-muted"></i>@Html.DisplayFor(modelItem => item.Address)
+                        </td>
+                        <td style="color: #cbd5e1;">
+                            <i class="fas fa-phone-alt me-2 text-muted"></i>@Html.DisplayFor(modelItem => item.Phone)
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <a asp-action="Details" asp-route-id="@item.Ssn" class="action-btn view" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@item.Ssn" method="post" class="delete-form m-0 p-0">
+                                    <button type="submit" class="action-btn delete" title="Delete Patient">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#patientsTable').DataTable({
+                responsive: true,
+                language: {
+                    search: "<i class='fas fa-search'></i>",
+                    searchPlaceholder: "Search records..."
+                },
+                columnDefs: [
+                    { orderable: false, targets: 4 }
+                ],
+                drawCallback: function () {
+                    $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+                }
+            });
+
+            $('.delete-form').on('submit', function (e) {
+                e.preventDefault();
+                var form = this;
+
+                Swal.fire({
+                    title: 'Delete Record?',
+                    text: "This action cannot be undone.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ff416c',
+                    cancelButtonColor: '#334155',
+                    confirmButtonText: '<i class="fas fa-trash-alt me-1"></i> Yes, delete',
+                    background: 'rgba(20, 25, 40, 0.95)',
+                    color: '#fff',
+                    backdrop: `rgba(0,0,0,0.6)`
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

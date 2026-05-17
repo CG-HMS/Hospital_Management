@@ -1,20 +1,9 @@
-namespace Hms.API.Exceptions;
-
-/// <summary>
-/// Exception thrown when a requested resource is not found
-/// </summary>
-public class NotFoundException : Exception
+﻿namespace Hms.API.Exceptions
 {
-    public NotFoundException(string message) : base(message)
+    public class NotFoundException : AppException
     {
-    }
-
-    public NotFoundException(string message, Exception innerException) : base(message, innerException)
-    {
-    }
-
-    public NotFoundException(string entityName, object key) 
-        : base($"{entityName} with key '{key}' was not found.")
-    {
+        public NotFoundException(string message) : base(404, message) { }
+        public NotFoundException(string entity, object key)
+            : base(404, $"{entity} with key '{key}' was not found.") { }
     }
 }

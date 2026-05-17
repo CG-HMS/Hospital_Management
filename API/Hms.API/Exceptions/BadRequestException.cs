@@ -1,15 +1,7 @@
-    namespace Hms.API.Exceptions;
-
-/// <summary>
-/// Exception thrown for bad request scenarios
-/// </summary>
-public class BadRequestException : Exception
+﻿namespace Hms.API.Exceptions
 {
-    public BadRequestException(string message) : base(message)
+    public class BadRequestException : AppException
     {
-    }
-
-    public BadRequestException(string message, Exception innerException) : base(message, innerException)
-    {
+        public BadRequestException(string message) : base(400, message) { }
     }
 }

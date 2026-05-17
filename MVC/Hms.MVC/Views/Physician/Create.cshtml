@@ -1,0 +1,38 @@
+﻿@model Hms.MVC.Models.Physician.PhysicianViewModel
+
+<div class="page-header">
+    <div>
+        <h1>Add Physician</h1>
+        <p>Create a new physician record.</p>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="card-body" style="padding: var(--space-lg);">
+
+        <form asp-action="Create" method="post">
+
+            <div class="mb-3">
+                <label asp-for="EmployeeId" class="form-label"></label>
+                <input asp-for="EmployeeId" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Position" class="form-label"></label>
+                <input asp-for="Position" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Save Physician
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
