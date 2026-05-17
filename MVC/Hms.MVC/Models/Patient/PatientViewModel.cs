@@ -18,6 +18,12 @@ public class PatientViewModel
     [Phone(ErrorMessage = "Invalid phone number format")]
     [StringLength(20, ErrorMessage = "Phone cannot exceed 20 characters")]
     public string Phone { get; set; } = string.Empty;
+
+    [Required]
+    public int InsuranceId { get; set; }
+
+    [Required]
+    public int Pcp { get; set; }
 }
 
 public class PatientDetailsViewModel : PatientViewModel
