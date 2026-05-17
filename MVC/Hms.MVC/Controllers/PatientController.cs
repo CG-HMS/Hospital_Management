@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hms.MVC.Controllers;
 
-[Authorize(Roles = "admin,physician")]
+[Authorize(Roles = "admin,physician,nurse")]
 public class PatientController : Controller
 {
     private readonly IApiService _api;

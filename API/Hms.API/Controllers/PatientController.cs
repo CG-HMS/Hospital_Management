@@ -18,7 +18,7 @@ public class PatientController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,physician,nurse")]
     public async Task<IActionResult> GetAllPatients()
     {
         var patients = await _service.GetAllPatientsAsync();
