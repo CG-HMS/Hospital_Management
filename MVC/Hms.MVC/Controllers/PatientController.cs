@@ -38,9 +38,12 @@ public class PatientController : Controller
 
         var response = await _api.PostAsync<PatientViewModel>("Patient", new
         {
+            ssn = model.Ssn,
             name = model.Name,
             address = model.Address,
-            phone = model.Phone
+            phone = model.Phone,
+            insuranceId = model.InsuranceId,
+            pcp = model.Pcp
         });
 
         if (response != null)
