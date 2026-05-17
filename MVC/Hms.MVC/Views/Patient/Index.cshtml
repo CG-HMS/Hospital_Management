@@ -47,7 +47,10 @@
                         </td>
                         <td>
                             <div class="d-flex gap-2">
+                                <a asp-action="Details" asp-route-id="@item.Ssn" class="btn btn-sm btn-primary">View</a>
+
                                 <form asp-action="Delete" asp-route-id="@item.Ssn" method="post" class="delete-form">
+
                                     <button type="submit" class="btn btn-sm btn-danger delete-btn">Delete</button>
                                 </form>
                             </div>
