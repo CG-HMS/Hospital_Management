@@ -117,6 +117,31 @@
 .hms-table tbody tr:nth-child(even):hover { background: var(--table-row-hover); }
 .hms-table tbody tr:last-child td { border-bottom: none; }
 
+/* ── DataTables Pagination ─────────────────────────────────── */
+.dataTables_wrapper .dataTables_paginate {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.dataTables_wrapper .dataTables_paginate ul.pagination {
+    margin: 0;
+    gap: var(--space-sm);
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.dataTables_wrapper .dataTables_paginate ul.pagination li {
+    list-style: none;
+    display: inline-flex;
+}
+
+.dataTables_wrapper .dataTables_paginate ul.pagination .page-link {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
 /* ── Badges ────────────────────────────────────────────────── */
 .badge {
     display: inline-flex; align-items: center;

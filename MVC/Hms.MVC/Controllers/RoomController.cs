@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hms.MVC.Controllers;
 
-[Authorize(Roles = "admin,nurse")]
+[Authorize(Roles = "admin,nurse,physician")]
 public class RoomController : Controller
 {
     private readonly IApiService _api;
@@ -19,5 +19,12 @@ public class RoomController : Controller
     {
         var rooms = await _api.GetAsync<List<RoomViewModel>>("rooms");
         return View(rooms ?? new List<RoomViewModel>());
+    }
+
+    [HttpGet("Available")]
+    public async Task<IActionResult> Available()
+    {
+        var rooms = await _api.GetAsync<List<RoomViewModel>>("rooms/available");
+        return View("Index", rooms ?? new List<RoomViewModel>());
     }
 }

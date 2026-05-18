@@ -1,0 +1,71 @@
+@model Hms.MVC.Models.Appointment.AppointmentCreateViewModel
+
+@{
+    ViewData["Title"] = "Book Appointment";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Book Appointment</h1>
+        <p>Schedule a new appointment for a patient.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-secondary">
+        ← Back to List
+    </a>
+</div>
+
+<div class="card animate-fade-in-up" style="max-width: 700px;">
+    <div class="card-header">
+        <h3 class="card-title">Appointment Details</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Patient" class="form-label"></label>
+                <input asp-for="Patient" class="form-control" />
+                <span asp-validation-for="Patient" class="form-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Physician" class="form-label"></label>
+                <input asp-for="Physician" class="form-control" />
+                <span asp-validation-for="Physician" class="form-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PrepNurse" class="form-label"></label>
+                <input asp-for="PrepNurse" class="form-control" />
+                <span asp-validation-for="PrepNurse" class="form-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ExaminationRoom" class="form-label"></label>
+                <input asp-for="ExaminationRoom" class="form-control" />
+                <span asp-validation-for="ExaminationRoom" class="form-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Starto" class="form-label"></label>
+                <input asp-for="Starto" type="datetime-local" class="form-control" />
+                <span asp-validation-for="Starto" class="form-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Endo" class="form-label"></label>
+                <input asp-for="Endo" type="datetime-local" class="form-control" />
+                <span asp-validation-for="Endo" class="form-error"></span>
+            </div>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary w-100">Book Appointment</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

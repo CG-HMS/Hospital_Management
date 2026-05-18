@@ -26,7 +26,10 @@
                     <th>Name</th>
                     <th>Address</th>
                     <th>Phone</th>
-                    <th>Actions</th>
+                    @if ((Context.Session.GetString("UserRole") ?? string.Empty) == "admin")
+                    {
+                        <th>Actions</th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -45,16 +48,17 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.Phone)
                         </td>
-                        <td>
-                            <div class="d-flex gap-2">
-                                <a asp-action="Details" asp-route-id="@item.Ssn" class="btn btn-sm btn-primary">View</a>
+                        @if ((Context.Session.GetString("UserRole") ?? string.Empty) == "admin")
+                        {
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <form asp-action="Delete" asp-route-id="@item.Ssn" method="post" class="delete-form">
 
-                                <form asp-action="Delete" asp-route-id="@item.Ssn" method="post" class="delete-form">
-
-                                    <button type="submit" class="btn btn-sm btn-danger delete-btn">Delete</button>
-                                </form>
-                            </div>
-                        </td>
+                                        <button type="submit" class="btn btn-sm btn-danger delete-btn">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>
@@ -81,9 +85,12 @@
                     search: "_INPUT_",
                     searchPlaceholder: "Search patients..."
                 },
-                columnDefs: [
-                    { orderable: false, targets: 4 } // Disable sorting on Actions column
-                ],
+                @if ((Context.Session.GetString("UserRole") ?? string.Empty) == "admin")
+                {
+                    @:columnDefs: [
+                    @:{ orderable: false, targets: 4 }
+                    @:],
+                }
                 // Styling hooks to match our dark theme
                 drawCallback: function () {
                     $('.dataTables_paginate > .pagination').addClass('pagination-sm');

@@ -20,4 +20,11 @@ public class StayController : Controller
         var stays = await _api.GetAsync<List<StayViewModel>>("Stay");
         return View(stays ?? new List<StayViewModel>());
     }
+
+    [HttpGet("Active")]
+    public async Task<IActionResult> Active()
+    {
+        var stays = await _api.GetAsync<List<StayViewModel>>("Stay/active");
+        return View("Index", stays ?? new List<StayViewModel>());
+    }
 }

@@ -11,6 +11,16 @@ public class AppointmentViewModel
     public string ExaminationRoom { get; set; } = string.Empty;
 }
 
+public class AppointmentCreateViewModel
+{
+    public int Patient { get; set; }
+    public int? PrepNurse { get; set; }
+    public int Physician { get; set; }
+    public DateTime Starto { get; set; }
+    public DateTime Endo { get; set; }
+    public string ExaminationRoom { get; set; } = string.Empty;
+}
+
 public class AppointmentFilterViewModel
 {
     public int AppointmentId { get; set; }
