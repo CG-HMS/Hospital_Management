@@ -1,0 +1,504 @@
+@model Hms.MVC.Models.Patient.PatientDashboardViewModel
+@{
+    ViewData["Title"] = "My Dashboard";
+    var upcoming = Model.Appointments
+                        .Where(a => a.Starto >= DateTime.Now)
+                        .OrderBy(a => a.Starto)
+                        .ToList();
+    var past = Model.Appointments
+                    .Where(a => a.Starto < DateTime.Now)
+                    .OrderByDescending(a => a.Starto)
+                    .ToList();
+}
+
+<div class="animate-fade-in patient-dash">
+
+    <!-- ── Hero Header ─────────────────────────────────────────────────── -->
+    <div class="pd-hero">
+        <div class="pd-hero-left">
+            <div class="pd-avatar">@(Model.Profile.Name.Length > 0 ? Model.Profile.Name[0].ToString().ToUpper() : "P")</div>
+            <div class="pd-hero-info">
+                <div class="pd-hero-greeting">Good @(DateTime.Now.Hour < 12 ? "Morning" : DateTime.Now.Hour < 17 ? "Afternoon" : "Evening"),</div>
+                <h1 class="pd-hero-name">@Model.Profile.Name</h1>
+                <div class="pd-hero-meta">
+                    <span class="pd-meta-chip">📞 @Model.Profile.Phone</span>
+                    <span class="pd-meta-chip">📍 @Model.Profile.Address</span>
+                    <span class="pd-meta-chip">🛡️ Ins. #@Model.Profile.InsuranceId</span>
+                </div>
+            </div>
+        </div>
+        <div class="pd-hero-date">
+            <div class="pd-date-day">@DateTime.Now.ToString("dddd")</div>
+            <div class="pd-date-full">@DateTime.Now.ToString("MMMM d, yyyy")</div>
+        </div>
+    </div>
+
+    <!-- ── Stat Cards ──────────────────────────────────────────────────── -->
+    <div class="pd-stats-row stagger-children">
+        <div class="pd-stat-card pd-stat-blue">
+            <div class="pd-stat-icon">📅</div>
+            <div class="pd-stat-body">
+                <div class="pd-stat-value">@Model.Stats.AppointmentCount</div>
+                <div class="pd-stat-label">Total Appointments</div>
+                @if (Model.Stats.LastAppointmentDate.HasValue)
+                {
+                    <div class="pd-stat-sub">Last: @Model.Stats.LastAppointmentDate.Value.ToString("MMM d")</div>
+                }
+            </div>
+        </div>
+
+        <div class="pd-stat-card pd-stat-teal">
+            <div class="pd-stat-icon">💊</div>
+            <div class="pd-stat-body">
+                <div class="pd-stat-value">@Model.Stats.MedicationCount</div>
+                <div class="pd-stat-label">Medications</div>
+                <div class="pd-stat-sub">Prescribed to you</div>
+            </div>
+        </div>
+
+        <div class="pd-stat-card pd-stat-purple">
+            <div class="pd-stat-icon">🔬</div>
+            <div class="pd-stat-body">
+                <div class="pd-stat-value">@Model.Stats.ProcedureCount</div>
+                <div class="pd-stat-label">Procedures</div>
+                <div class="pd-stat-sub">On your record</div>
+            </div>
+        </div>
+
+        <div class="pd-stat-card pd-stat-amber">
+            <div class="pd-stat-icon">🛏️</div>
+            <div class="pd-stat-body">
+                <div class="pd-stat-value">@Model.Stats.StayCount</div>
+                <div class="pd-stat-label">Hospital Stays</div>
+                <div class="pd-stat-sub">Total admissions</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Next Appointment Banner ─────────────────────────────────────── -->
+    @if (upcoming.Any())
+    {
+        var next = upcoming.First();
+        <div class="pd-next-appointment animate-fade-in-up">
+            <div class="pd-next-label">⏰ Next Appointment</div>
+            <div class="pd-next-row">
+                <div class="pd-next-info">
+                    <span class="pd-next-date">@next.Starto.ToString("dddd, MMMM d · h:mm tt")</span>
+                    <span class="pd-next-sep">→</span>
+                    <span class="pd-next-end">@next.Endo.ToString("h:mm tt")</span>
+                </div>
+                <div class="pd-next-meta">
+                    <span class="pd-meta-chip pd-chip-dark">🩺 Dr. @next.PhysicianName</span>
+                    <span class="pd-meta-chip pd-chip-dark">🚪 Room @next.ExaminationRoom</span>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ── Tabbed Sections ──────────────────────────────────────────────── -->
+    <div class="pd-tabs-container animate-fade-in-up">
+        <div class="pd-tab-nav" role="tablist">
+            <button class="pd-tab-btn active" data-target="tab-appointments" role="tab">
+                📅 Appointments
+                <span class="pd-tab-badge">@Model.Appointments.Count</span>
+            </button>
+            <button class="pd-tab-btn" data-target="tab-medications" role="tab">
+                💊 Medications
+                <span class="pd-tab-badge">@Model.Medications.Count</span>
+            </button>
+            <button class="pd-tab-btn" data-target="tab-procedures" role="tab">
+                🔬 Procedures
+                <span class="pd-tab-badge">@Model.Procedures.Count</span>
+            </button>
+            <button class="pd-tab-btn" data-target="tab-stays" role="tab">
+                🛏️ Stays
+                <span class="pd-tab-badge">@Model.Stays.Count</span>
+            </button>
+        </div>
+
+        <!-- ── Appointments Tab ──────────────────────────────────────────── -->
+        <div id="tab-appointments" class="pd-tab-panel active">
+
+            @if (upcoming.Any())
+            {
+                <div class="pd-section-title">Upcoming</div>
+                <table class="hms-table pd-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Physician</th>
+                            <th>Room</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var apt in upcoming)
+                        {
+                            var daysAway = (apt.Starto.Date - DateTime.Today).Days;
+                            <tr>
+                                <td><span class="badge badge-blue">#@apt.AppointmentId</span></td>
+                                <td style="font-weight:600; color:var(--text-primary)">@apt.Starto.ToString("MMM d, yyyy")</td>
+                                <td>@apt.Starto.ToString("h:mm tt") – @apt.Endo.ToString("h:mm tt")</td>
+                                <td>Dr. @apt.PhysicianName</td>
+                                <td><span class="badge badge-teal">@apt.ExaminationRoom</span></td>
+                                <td>
+                                    @if (daysAway == 0)
+                                    {
+                                        <span class="badge badge-amber">Today</span>
+                                    }
+                                    else if (daysAway == 1)
+                                    {
+                                        <span class="badge badge-blue">Tomorrow</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-green">In @daysAway days</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            @if (past.Any())
+            {
+                <div class="pd-section-title" style="margin-top: var(--space-xl);">Past</div>
+                <table class="hms-table pd-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Physician</th>
+                            <th>Room</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var apt in past.Take(10))
+                        {
+                            <tr style="opacity: 0.75;">
+                                <td><span class="badge badge-blue">#@apt.AppointmentId</span></td>
+                                <td>@apt.Starto.ToString("MMM d, yyyy")</td>
+                                <td>@apt.Starto.ToString("h:mm tt") – @apt.Endo.ToString("h:mm tt")</td>
+                                <td>Dr. @apt.PhysicianName</td>
+                                <td><span class="badge badge-teal">@apt.ExaminationRoom</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            @if (!Model.Appointments.Any())
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">📅</div>
+                    <div class="empty-state-title">No Appointments</div>
+                    <div class="empty-state-text">You have no appointment records yet.</div>
+                </div>
+            }
+        </div>
+
+        <!-- ── Medications Tab ────────────────────────────────────────────── -->
+        <div id="tab-medications" class="pd-tab-panel">
+            @if (Model.Medications.Any())
+            {
+                <table class="hms-table pd-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Medication</th>
+                            <th>Dose</th>
+                            <th>Prescribed By</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var med in Model.Medications.OrderByDescending(m => m.Date))
+                        {
+                            <tr>
+                                <td><span class="badge badge-purple">#@med.MedicationCode</span></td>
+                                <td style="font-weight:600; color:var(--text-primary)">@med.MedicationName</td>
+                                <td>
+                                    <span class="pd-dose-chip">@med.Dose</span>
+                                </td>
+                                <td>Dr. @med.PhysicianName</td>
+                                <td>@med.Date.ToString("MMM d, yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">💊</div>
+                    <div class="empty-state-title">No Medications</div>
+                    <div class="empty-state-text">No medications have been prescribed to you yet.</div>
+                </div>
+            }
+        </div>
+
+        <!-- ── Procedures Tab ─────────────────────────────────────────────── -->
+        <div id="tab-procedures" class="pd-tab-panel">
+            @if (Model.Procedures.Any())
+            {
+                <table class="hms-table pd-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Procedure</th>
+                            <th>Date</th>
+                            <th>Physician</th>
+                            <th>Assisting Nurse</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var proc in Model.Procedures.OrderByDescending(p => p.DateUndergoes))
+                        {
+                            <tr>
+                                <td><span class="badge badge-teal">#@proc.ProcedureCode</span></td>
+                                <td style="font-weight:600; color:var(--text-primary)">@proc.ProcedureName</td>
+                                <td>@proc.DateUndergoes.ToString("MMM d, yyyy")</td>
+                                <td>Dr. @proc.PhysicianName</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(proc.AssistingNurseName))
+                                    {
+                                        <span>@proc.AssistingNurseName</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔬</div>
+                    <div class="empty-state-title">No Procedures</div>
+                    <div class="empty-state-text">No procedures are on your record.</div>
+                </div>
+            }
+        </div>
+
+        <!-- ── Stays Tab ──────────────────────────────────────────────────── -->
+        <div id="tab-stays" class="pd-tab-panel">
+            @if (Model.Stays.Any())
+            {
+                <table class="hms-table pd-table">
+                    <thead>
+                        <tr>
+                            <th>Stay #</th>
+                            <th>Check-In</th>
+                            <th>Check-Out</th>
+                            <th>Duration</th>
+                            <th>Room</th>
+                            <th>Type</th>
+                            <th>Block</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var stay in Model.Stays.OrderByDescending(s => s.StayStart))
+                        {
+                            var nights = (stay.StayEnd - stay.StayStart).Days;
+                            <tr>
+                                <td><span class="badge badge-amber">#@stay.StayId</span></td>
+                                <td style="font-weight:600; color:var(--text-primary)">@stay.StayStart.ToString("MMM d, yyyy")</td>
+                                <td>@stay.StayEnd.ToString("MMM d, yyyy")</td>
+                                <td>
+                                    <span class="pd-dose-chip">@nights @(nights == 1 ? "night" : "nights")</span>
+                                </td>
+                                <td><span class="badge badge-teal">Room @stay.RoomNumber</span></td>
+                                <td>@stay.RoomType</td>
+                                <td>Floor @stay.BlockFloor · Code @stay.BlockCode</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">🛏️</div>
+                    <div class="empty-state-title">No Hospital Stays</div>
+                    <div class="empty-state-text">You have no admission records.</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Tab switching
+    document.querySelectorAll('.pd-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.dataset.target;
+
+            document.querySelectorAll('.pd-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.pd-tab-panel').forEach(p => p.classList.remove('active'));
+
+            btn.classList.add('active');
+            document.getElementById(target).classList.add('active');
+        });
+    });
+</script>
+<style>
+/* ── Patient Dashboard Layout ─────────────────────────────────────────── */
+.patient-dash { display: flex; flex-direction: column; gap: var(--space-xl); }
+
+/* Hero */
+.pd-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    background: linear-gradient(135deg, var(--bg-card) 0%, color-mix(in srgb, var(--accent-teal) 8%, var(--bg-card)) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl) var(--space-xl);
+    position: relative;
+    overflow: hidden;
+}
+.pd-hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent-teal) 15%, transparent), transparent 70%);
+    pointer-events: none;
+}
+.pd-hero-left { display: flex; align-items: center; gap: var(--space-lg); }
+.pd-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-teal), var(--accent-blue));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; font-weight: 800; color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 4px 20px color-mix(in srgb, var(--accent-teal) 30%, transparent);
+}
+.pd-hero-greeting { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; }
+.pd-hero-name { font-size: 1.6rem; font-weight: 800; color: var(--text-primary); margin: 2px 0 8px; }
+.pd-hero-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.pd-meta-chip {
+    background: color-mix(in srgb, var(--accent-teal) 12%, var(--bg-input));
+    color: var(--text-secondary);
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 0.78rem; font-weight: 500;
+    border: 1px solid color-mix(in srgb, var(--accent-teal) 20%, var(--border-color));
+}
+.pd-hero-date { text-align: right; flex-shrink: 0; }
+.pd-date-day { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+.pd-date-full { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+
+/* Stat Cards */
+.pd-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); }
+.pd-stat-card {
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    display: flex; align-items: flex-start; gap: var(--space-md);
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.pd-stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+.pd-stat-icon { font-size: 1.8rem; line-height: 1; }
+.pd-stat-body { flex: 1; }
+.pd-stat-value { font-size: 2rem; font-weight: 800; line-height: 1; }
+.pd-stat-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; opacity: 0.8; }
+.pd-stat-sub { font-size: 0.72rem; margin-top: 4px; opacity: 0.6; }
+
+.pd-stat-blue   { background: color-mix(in srgb, var(--accent-blue) 12%, var(--bg-card));    color: var(--accent-blue); }
+.pd-stat-teal   { background: color-mix(in srgb, var(--accent-teal) 12%, var(--bg-card));    color: var(--accent-teal); }
+.pd-stat-purple { background: color-mix(in srgb, var(--accent-purple) 12%, var(--bg-card));  color: var(--accent-purple); }
+.pd-stat-amber  { background: color-mix(in srgb, var(--accent-amber) 12%, var(--bg-card));   color: var(--accent-amber); }
+.pd-stat-blue .pd-stat-label,  .pd-stat-blue .pd-stat-sub   { color: var(--text-secondary); }
+.pd-stat-teal .pd-stat-label,  .pd-stat-teal .pd-stat-sub   { color: var(--text-secondary); }
+.pd-stat-purple .pd-stat-label,.pd-stat-purple .pd-stat-sub  { color: var(--text-secondary); }
+.pd-stat-amber .pd-stat-label, .pd-stat-amber .pd-stat-sub   { color: var(--text-secondary); }
+
+/* Next appointment banner */
+.pd-next-appointment {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent-blue) 15%, var(--bg-card)), var(--bg-card));
+    border: 1px solid color-mix(in srgb, var(--accent-blue) 30%, var(--border-color));
+    border-left: 4px solid var(--accent-blue);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg) var(--space-xl);
+}
+.pd-next-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-blue); margin-bottom: 6px; }
+.pd-next-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); flex-wrap: wrap; }
+.pd-next-info { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.pd-next-date { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+.pd-next-sep { color: var(--text-muted); }
+.pd-next-end { font-size: 0.95rem; color: var(--text-secondary); font-weight: 600; }
+.pd-next-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.pd-chip-dark { background: color-mix(in srgb, var(--accent-blue) 15%, var(--bg-input)); }
+
+/* Tabs */
+.pd-tabs-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+.pd-tab-nav {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    background: color-mix(in srgb, var(--bg-input) 60%, var(--bg-card));
+    overflow-x: auto;
+}
+.pd-tab-btn {
+    flex-shrink: 0;
+    background: none; border: none; cursor: pointer;
+    padding: 14px 22px;
+    font-size: 0.88rem; font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    display: flex; align-items: center; gap: 8px;
+}
+.pd-tab-btn:hover  { color: var(--text-primary); }
+.pd-tab-btn.active { color: var(--accent-teal); border-bottom-color: var(--accent-teal); }
+.pd-tab-badge {
+    background: color-mix(in srgb, var(--accent-teal) 20%, var(--bg-input));
+    color: var(--accent-teal);
+    font-size: 0.7rem; font-weight: 700;
+    padding: 1px 7px; border-radius: 10px;
+    min-width: 20px; text-align: center;
+}
+.pd-tab-btn.active .pd-tab-badge { background: var(--accent-teal); color: #fff; }
+
+.pd-tab-panel { display: none; padding: var(--space-lg); }
+.pd-tab-panel.active { display: block; }
+
+.pd-section-title {
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted); margin-bottom: var(--space-md);
+}
+.pd-table th { font-size: 0.75rem; }
+.pd-dose-chip {
+    background: color-mix(in srgb, var(--accent-purple) 15%, var(--bg-input));
+    color: var(--accent-purple);
+    padding: 2px 10px; border-radius: 12px;
+    font-size: 0.78rem; font-weight: 600;
+}
+
+@@media (max-width: 900px) {
+    .pd-stats-row { grid-template-columns: 1fr 1fr; }
+    .pd-hero { flex-direction: column; align-items: flex-start; }
+    .pd-hero-date { text-align: left; }
+}
+@@media (max-width: 500px) {
+    .pd-stats-row { grid-template-columns: 1fr; }
+    .pd-hero-left { flex-direction: column; align-items: flex-start; }
+}
+</style>
+}
