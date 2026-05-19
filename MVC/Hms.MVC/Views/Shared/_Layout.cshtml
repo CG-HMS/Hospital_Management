@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] — HMS</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
 </head>
 <body>
     <div class="app-shell">
@@ -51,7 +52,34 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        window.hmsToast = {
+            show: function (type, message) {
+                if (!window.toastr) {
+                    return;
+                }
+                toastr.options = {
+                    closeButton: true,
+                    progressBar: true,
+                    positionClass: 'toast-top-right',
+                    timeOut: 4000
+                };
+                toastr[type](message);
+            }
+        };
+    </script>
+    <script>
+        const successMessage = '@TempData["SuccessMessage"]';
+        const errorMessage = '@TempData["ErrorMessage"]';
+        if (successMessage) {
+            window.hmsToast.show('success', successMessage);
+        }
+        if (errorMessage) {
+            window.hmsToast.show('error', errorMessage);
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
