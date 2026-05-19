@@ -337,18 +337,48 @@
 
 @section Scripts {
 <script>
+    const tabMap = {
+        appointments: 'tab-appointments',
+        medications: 'tab-medications',
+        procedures: 'tab-procedures',
+        stays: 'tab-stays'
+    };
+
+    const activateTab = (targetId) => {
+        if (!targetId) return;
+        const btn = document.querySelector(`.pd-tab-btn[data-target="${targetId}"]`);
+        const panel = document.getElementById(targetId);
+        if (!btn || !panel) return;
+
+        document.querySelectorAll('.pd-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.pd-tab-panel').forEach(p => p.classList.remove('active'));
+
+        btn.classList.add('active');
+        panel.classList.add('active');
+    };
+
     // Tab switching
     document.querySelectorAll('.pd-tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const target = btn.dataset.target;
-
-            document.querySelectorAll('.pd-tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.pd-tab-panel').forEach(p => p.classList.remove('active'));
-
-            btn.classList.add('active');
-            document.getElementById(target).classList.add('active');
+            activateTab(target);
+            const hash = Object.keys(tabMap).find(key => tabMap[key] === target);
+            if (hash) {
+                history.replaceState(null, '', `#${hash}`);
+            }
         });
     });
+
+    const activateFromHash = () => {
+        const hash = window.location.hash?.replace('#', '');
+        if (hash && tabMap[hash]) {
+            activateTab(tabMap[hash]);
+        }
+    };
+
+    // Activate from hash on load and when hash changes
+    activateFromHash();
+    window.addEventListener('hashchange', activateFromHash);
 </script>
 <style>
 /* ── Patient Dashboard Layout ─────────────────────────────────────────── */
