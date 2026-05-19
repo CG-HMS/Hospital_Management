@@ -9,7 +9,20 @@
         <h1>User Management</h1>
         <p>Manage system users and roles.</p>
     </div>
+    <div>
+        <a asp-action="CreateUser" class="btn btn-primary">
+            ✚ Create User
+        </a>
+    </div>
 </div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
 
 <div class="table-container animate-fade-in-up">
     <div class="table-header">

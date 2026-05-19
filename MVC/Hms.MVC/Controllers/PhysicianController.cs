@@ -36,4 +36,18 @@ public class PhysicianController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+
+    // ── POST /Physician/Delete/{id}  — calls DELETE api/physician/{id} ───────
+    [HttpPost]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var success = await _api.DeleteAsync($"Physician/{id}");
+
+        if (!success)
+            TempData["ErrorMessage"] = "Could not delete physician. They may have linked appointments, prescriptions, or procedures — remove those records first.";
+        else
+            TempData["SuccessMessage"] = "Physician deleted successfully.";
+
+        return RedirectToAction(nameof(Index));
+    }
 }

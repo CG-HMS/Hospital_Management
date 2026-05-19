@@ -140,4 +140,61 @@ public class AuthController : Controller
         var users = await _api.GetAsync<List<UserViewModel>>("auth/users");
         return View(users?.OrderBy(u => u.UserId).ToList() ?? new List<UserViewModel>());
     }
+
+    // ── GET /Auth/CreateUser  — ADMIN ────────────────────────────────────────
+    [Authorize(Roles = "admin")]
+    [HttpGet]
+    public IActionResult CreateUser()
+    {
+        return View(new CreateUserViewModel());
+    }
+
+    // ── POST /Auth/CreateUser  — ADMIN ───────────────────────────────────────
+    [Authorize(Roles = "admin")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateUser(CreateUserViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        try
+        {
+            var payload = new
+            {
+                username = model.Username,
+                email    = model.Email,
+                password = model.Password,   // API hashes with SHA-256 internally
+                role     = model.Role,
+                refId    = model.RefId
+            };
+
+            var response = await _api.PostRawAsync("auth/users", payload);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorJson = await response.Content.ReadAsStringAsync();
+                string errorMsg = "Failed to create user.";
+
+                try
+                {
+                    var errorObj = JsonSerializer.Deserialize<JsonElement>(errorJson);
+                    if (errorObj.TryGetProperty("message", out var msg))
+                        errorMsg = msg.GetString() ?? errorMsg;
+                }
+                catch { }
+
+                model.ErrorMessage = errorMsg;
+                return View(model);
+            }
+
+            TempData["SuccessMessage"] = $"User '{model.Username}' created successfully.";
+            return RedirectToAction(nameof(Users));
+        }
+        catch (Exception)
+        {
+            model.ErrorMessage = "Unable to connect to the server. Please try again.";
+            return View(model);
+        }
+    }
 }

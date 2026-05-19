@@ -1,0 +1,130 @@
+@model Hms.MVC.Models.Auth.CreateUserViewModel
+
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Create User</h1>
+        <p>Add a new system user with a hashed password.</p>
+    </div>
+    <div>
+        <a asp-action="Users" class="btn btn-secondary">← Back to Users</a>
+    </div>
+</div>
+
+<div class="table-container animate-fade-in-up" style="max-width: 560px; margin: 0 auto;">
+    <div class="table-header">
+        <h3 class="table-title">New User Details</h3>
+    </div>
+    <div class="card-body" style="padding: var(--space-lg);">
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger mb-3" role="alert">
+                @Model.ErrorMessage
+            </div>
+        }
+
+        <form asp-action="CreateUser" method="post">
+            @Html.AntiForgeryToken()
+
+            <!-- Username -->
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label fw-semibold">Username</label>
+                <input asp-for="Username" class="form-control hms-input" placeholder="e.g. dr_smith" autocomplete="off" />
+                <span asp-validation-for="Username" class="text-danger small"></span>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label fw-semibold">Email</label>
+                <input asp-for="Email" class="form-control hms-input" placeholder="user@hospital.com" autocomplete="off" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label fw-semibold">Password</label>
+                <div class="input-group">
+                    <input asp-for="Password" type="password" id="passwordField" class="form-control hms-input"
+                           placeholder="Minimum 6 characters" autocomplete="new-password" />
+                    <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()" title="Show/Hide password">
+                        👁
+                    </button>
+                </div>
+                <span asp-validation-for="Password" class="text-danger small"></span>
+                <div class="form-text text-muted small mt-1">
+                    Password is hashed with SHA-256 before storage.
+                </div>
+            </div>
+
+            <!-- Role -->
+            <div class="mb-3">
+                <label asp-for="Role" class="form-label fw-semibold">Role</label>
+                <select asp-for="Role" class="form-select hms-input">
+                    <option value="" disabled selected>-- Select a role --</option>
+                    <option value="admin">Admin</option>
+                    <option value="physician">Physician</option>
+                    <option value="nurse">Nurse</option>
+                    <option value="patient">Patient</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger small"></span>
+            </div>
+
+            <!-- RefId -->
+            <div class="mb-4">
+                <label asp-for="RefId" class="form-label fw-semibold">
+                    Reference ID
+                    <span class="text-muted fw-normal small">(optional)</span>
+                </label>
+                <input asp-for="RefId" type="number" class="form-control hms-input"
+                       placeholder="Physician ID / Nurse ID / Patient SSN" />
+                <div class="form-text text-muted small mt-1">
+                    Link to the corresponding profile record. Leave blank for Admin accounts.
+                </div>
+                <span asp-validation-for="RefId" class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">
+                    ✚ Create User
+                </button>
+                <a asp-action="Users" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword() {
+            const f = document.getElementById('passwordField');
+            f.type = f.type === 'password' ? 'text' : 'password';
+        }
+    </script>
+    <style>
+        .hms-input {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: var(--radius-sm);
+        }
+        .hms-input:focus {
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 0 2px rgba(20,184,166,.25);
+        }
+        .hms-input option {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+        }
+        .btn-outline-secondary {
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+    </style>
+}
