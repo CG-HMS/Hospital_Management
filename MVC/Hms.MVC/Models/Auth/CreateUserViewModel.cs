@@ -24,6 +24,7 @@ public class CreateUserViewModel
     /// Links to PhysicianId / NurseId / Patient SSN depending on role.
     /// Leave null for admin accounts.
     /// </summary>
+    [Range(0, int.MaxValue, ErrorMessage = "ID cannot be negative")]
     public int? RefId { get; set; }
 
     public string? ErrorMessage { get; set; }

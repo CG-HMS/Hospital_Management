@@ -11,20 +11,24 @@
     <div class="card-body" style="padding: var(--space-lg);">
 
         <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="mb-3">
                 <label asp-for="EmployeeId" class="form-label"></label>
                 <input asp-for="EmployeeId" class="form-control" />
+                <span asp-validation-for="EmployeeId" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
                 <label asp-for="Name" class="form-label"></label>
                 <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
                 <label asp-for="Position" class="form-label"></label>
                 <input asp-for="Position" class="form-control" />
+                <span asp-validation-for="Position" class="text-danger"></span>
             </div>
 
             <button type="submit" class="btn btn-primary">
@@ -34,5 +38,9 @@
         </form>
 
     </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
 </div>
 
